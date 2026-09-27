@@ -6,14 +6,20 @@
 
 It aims to address impulsive shopping and wardrobe underutilization by providing users with a visual inventory of the clothing items they already own, allowing them to better understand and manage their personal style.
 
+---
+
 ## 2. Setup and Installation
 
-> **Note:** The application is currently in **Week 1 scaffolding (Demo Mode)**. No database or backend API is required to run this version.
+> **Status:** The application is currently in **Week 2 — Full Local Prototype & Feature Integration**. 
+> All core client features, local persistence (`localStorage`), real device photo uploads, client-side background removal, 3-piece outfit management, calendar scheduling, 7-day automatic laundry tracking, and closet analytics are fully functional.
+>
+> *Note on Supabase:* Supabase integration has intentionally not been implemented in this phase. The application runs locally without external database credentials or API keys.
 
 ### Prerequisites
 
-* [Node.js](https://nodejs.org/) installed on your machine.
+* [Node.js](https://nodejs.org/) (v20+ recommended) installed on your machine.
 * Git installed on your machine.
+* A modern web browser (Chrome, Edge, Firefox, Safari).
 
 ### Clone the Repository
 
@@ -24,7 +30,7 @@ cd Paradul-Tongol
 
 ### Install Dependencies
 
-Run the following command inside the project folder:
+Run the following command inside the `client` folder:
 
 ```bash
 cd client
@@ -33,133 +39,202 @@ npm install
 
 ### Environment Variables
 
-No environment variables are required for Week 1.
+No external API keys or database environment variables are required for Week 2.
 
-The current prototype uses mock data and local React state. Environment variable placeholders will be added once the backend server is implemented.
+The application operates with `VITE_USE_MOCK_API=true` by default, running against the local browser data store and simulated network latency.
 
-### Database
-
-Database setup is currently pending and is planned for **Week 2** using PostgreSQL.
+---
 
 ## 3. How to Run
 
-Start the local development server:
+### Start the Development Server
+
+From the `client` directory, run:
 
 ```bash
 npm run dev
 ```
 
-After starting the server, open the local URL shown in the terminal, typically:
+Open the local URL displayed in your terminal:
 
 ```text
 http://localhost:5173
 ```
 
-The current version displays a basic prototype UI demonstrating the initial React state logic and application structure.
+### Run Automated Tests
 
-## 4. Features and Usage
+To run the verification test suite covering laundry business rules, wear calculations, and analytics:
 
-### Current Prototype Features
+```bash
+npm test
+```
 
-The current Week 1 prototype operates in **Demo Mode** using local React state.
+### Build for Production
 
-#### View Inventory
+```bash
+npm run build
+```
 
-Upon loading the application, users can view the current clothing items rendered from local React state.
+---
 
-#### Add Item
+## 4. Features and Usage (Week 2)
 
-Clicking **"+ Add Item"** adds a mock clothing item to the local state array and immediately updates the Wardrobe Gallery UI.
+### 1. Mock Authentication
+* **Fashion-Forward Login View:** Includes paradu'l branding, email, password, "Remember me", and "Forgot password?" hint.
+* **Instant Prototype Access:** Click **"Use Demo Account"** to automatically fill `demo@paradul.com` / `paradul123`, or enter any valid-looking email.
+* **Session Persistence:** Login state persists in browser storage with an accessible logout action in the top navigation bar.
 
-#### Log Outfit
+### 2. Digital Wardrobe Gallery
+* **Transparent PNG Neutral Backdrop:** Clothing cards feature a subtle checkered backdrop specifically designed to display transparent, background-isolated clothing assets crisply.
+* **Detailed Metadata Display:** Item name, category badge (`Top`, `Bottom`, `Shoes`), color indicator chip, price formatted in Philippine Pesos (`₱`), style tag, and laundry status.
+* **Combinable Multi-Filters:**
+  * **Primary Category Filter:** Quick pills to filter by All Pieces, Tops, Bottoms, or Shoes.
+  * **Secondary Filters:** Filter by Color, Style, Max Price (up to ₱1,000, ₱2,000, ₱3,000), or live text search across names, colors, and styles.
+  * **Laundry Status:** Filter by Available or In Laundry.
+  * **Reset Action:** Instant "Reset" button clears all active filters.
+* **Quick Laundry Toggle:** Quickly mark any item clean/available or send it to laundry directly from the card.
 
-Under the **Saved Outfits** section, clicking **"Log as Worn Today"** adds the selected outfit's ID to the wear logs state. The analytics section is then updated based on the logged outfit.
+### 3. Real Photo Upload & Image Processing
+* **Device Upload:** Select image files from your computer or drag and drop into the upload zone.
+* **Processing UX Pipeline:**
+  1. `Preparing your clothing photo...`
+  2. `Removing background & isolating clothing...`
+  3. `Detecting clothing type and color palette...`
+  4. `Ready!` (with visual progress bar)
+* **Background Removal:** Client-side HTML5 Canvas perimeter-sampling algorithm isolates clothing from solid or studio backdrops and outputs a real transparent PNG.
+* **Preview Mode Switch:** Users can toggle between **"Background Removed (Transparent)"** and **"Original Photo"**.
+* **Assisted Clothing Detection:** Analyzes silhouette aspect ratios and dominant RGB colors to pre-select category and color.
+* **Manual Metadata Confirmation:** Users can verify or edit the item name, category, color, price (₱), style, and initial laundry status before saving.
+* **Graceful Fallback:** If automatic isolation encounters issues, users can click "Use Original Image", retry, or cancel.
 
-> **Note:** There is currently no backend API or database connection. All data is stored temporarily in React state and will be reset when the browser page is refreshed.
+### 4. Outfit Manager & Coordinated Outfits
+* **Strict 3-Piece Structure:** Every outfit requires exactly **1 Top**, **1 Bottom**, and **1 pair of Shoes** before it can be saved.
+* **Live Synchronized Preview:** 3-tier visual stack updates in real time as pieces are selected.
+* **Random Outfit Generator:**
+  * Clicking **"Randomize Look"** pairs 1 clean top, 1 clean bottom, and 1 clean pair of shoes.
+  * **Strictly excludes** any clothing items currently marked as `in_laundry`.
+  * Allows re-randomizing or swapping individual pieces.
+* **Outfit Actions:** Directly schedule an outfit to the calendar, edit its components, or delete the outfit (deleting an outfit preserves its clothing items).
 
-### Planned Features
+### 5. Calendar & Outfit Planner
+* **Scheduled vs. Worn Distinction:**
+  * **Scheduled:** Represents the user's plan to wear an outfit on a given date.
+  * **Worn:** Confirmed actual wear. Outfits on the calendar are not considered worn until confirmed.
+* **`[ Mark as Worn ]` Action:**
+  * Confirms the outfit was worn and creates a `WearRecord` for Analytics.
+  * **Automatic 7-Day Laundry:** Automatically places the outfit's **Top** and **Bottom** into laundry for 7 days (`laundryUntil = wearDate + 7 days`).
+  * **Shoes:** Kept clean and unaffected (shoes are managed manually).
+* **Schedule Management:** Add, edit, or delete calendar events with date, occasion, and notes.
 
-The following features are planned for **Weeks 2-3**:
+### 6. Laundry Lifecycle & Expiration
+* **Automatic Expiration:** Whenever wardrobe data is loaded, `processLaundryExpiration` checks if `currentDate >= laundryUntil`. If expired, status automatically reverts to `available` without requiring a continuously running server process.
+* **Manual Override:** Users can toggle laundry status at any time, which takes immediate precedence over automatic schedules.
 
-* **Digital Wardrobe Gallery**
+### 7. Wardrobe Analytics & Style Insights
+* **Top 3 Most Used Clothing:** Counted strictly from verified `WearRecord` logs (saved or scheduled outfits do not count). Features #1 Gold, #2 Silver, and #3 Bronze podium cards.
+* **Most Used Outfit:** Displays the outfit combination with the highest wear count.
+* **Most Used Color:** Analyzes colors across all pieces worn in confirmed outfits.
+* **Total Wardrobe Value:** Sums the price of every active clothing item exactly once in Philippine Pesos (`₱`).
+* **Closet Distribution:** Category breakdown bars and laundry availability ratio.
+* **Recent Wear Logs:** Chronological log table of verified wear events.
 
-  * View individual clothing items.
-  * Filter wardrobe items.
-  * Upload photos of clothing items.
-  * Organize items by category and other attributes.
+### 8. Local Data Persistence
+* Data is stored in browser `localStorage` and persists across page reloads:
+  * `paradul:clothing`
+  * `paradul:outfits`
+  * `paradul:schedules`
+  * `paradul:wear_records`
+  * `paradul:auth_user`
+* A **"Reset Demo"** button in the header allows restoring the default dataset at any time.
 
-* **Outfit Builder**
-
-  * Mix and match wardrobe items.
-  * Create outfits.
-  * Save created outfits for future use.
-
-* **Calendar Planner**
-
-  * Assign saved outfits to specific dates.
-  * Plan outfits for upcoming occasions.
-
-* **Closet Insights**
-
-  * View wardrobe-related analytics.
-  * Display visualizations such as cost-per-wear.
-  * Analyze wardrobe value and usage.
+---
 
 ## 5. Project Structure
 
 ```text
 Paradul-Tongol/
-├── src/
-│   ├── App.jsx        # Core state logic, mock data, and prototype UI
-│   └── main.jsx       # Application entry point
+├── client/
+│   ├── src/
+│   │   ├── api/
+│   │   │   ├── index.js              # Unified API gateway (mockApi vs httpApi)
+│   │   │   ├── mockApi.js            # LocalStorage persistence with simulated delay
+│   │   │   ├── httpApi.js            # HTTP client for future Express/PostgreSQL backend
+│   │   │   └── sampleData.js         # Pre-loaded wardrobe items, outfits, and wear history
+│   │   ├── services/
+│   │   │   ├── authService.js        # Mock authentication and session management
+│   │   │   ├── laundryService.js     # 7-day wear laundry rules and expiration logic
+│   │   │   ├── analyticsService.js   # Pure calculations for top items, outfits, and value
+│   │   │   └── imageProcessingService.js # Canvas background removal & detection
+│   │   ├── components/
+│   │   │   ├── common/               # Modal, Badge, and SVG Icons
+│   │   │   ├── Gallery/              # GalleryView, ClothingCard, UploadModal
+│   │   │   ├── OutfitManager/        # OutfitManagerView, OutfitCard, OutfitCreatorModal
+│   │   │   ├── Calendar/             # CalendarView, ScheduleModal
+│   │   │   ├── Analytics/            # AnalyticsView
+│   │   │   ├── Header.jsx            # Top navigation bar and user menu
+│   │   │   ├── Login.jsx             # Mock login view
+│   │   │   └── DemoNotice.jsx        # Demo mode indicator banner
+│   │   ├── App.jsx                   # Central state orchestration and tab routing
+│   │   ├── main.jsx                  # React application entry point
+│   │   └── styles.css                # Design system tokens, checkered canvas, and styling
+│   ├── test-services.js              # Automated test suite for business rules & analytics
+│   ├── index.html                    # Application HTML shell
+│   ├── package.json                  # Dependencies and scripts (dev, build, test)
+│   └── vite.config.js                # Vite configuration
 │
-├── project/           # Internal workspace documentation and screenshots
-├── journal/           # Weekly reflection journals
+├── server/                           # Express & PostgreSQL scaffolding for Week 3
+│   ├── db/
+│   │   ├── pool.js
+│   │   ├── run.js
+│   │   ├── schema.sql
+│   │   └── seed.sql
+│   ├── server.js
+│   └── package.json
 │
-├── package.json       # Project dependencies and scripts
-└── README.md          # Project documentation
+├── docs/                             # Project planning documents and design systems
+├── compose.yml                       # Container setup
+└── README.md                         # Project documentation
 ```
+
+---
 
 ## 6. Screenshots
 
-Screenshots will be added as the application's UI development progresses.
+*(Screenshots will be added as UI development progresses.)*
 
-<!-- Add screenshots here when available. -->
+---
 
-## 7. Known Issues and Next Steps
+## 7. Progress & Next Steps
 
-### Known Issues
+### Completed in Week 2
+* [x] Polished, cohesive fashion UI design system with light/dark theme support.
+* [x] Mock authentication with persistent user session.
+* [x] Digital Wardrobe Gallery with multi-criteria combinable filtering and search.
+* [x] Real device photo upload with client-side canvas background removal and assisted detection.
+* [x] 3-piece Outfit Manager (Top, Bottom, Shoes) with live visual stack preview.
+* [x] Intelligent Random Outfit Generator strictly excluding items in laundry.
+* [x] Calendar & Outfit Planner with explicit "Scheduled" vs. "Worn" distinction.
+* [x] Automatic 7-day laundry transition for Tops and Bottoms upon wear.
+* [x] Automatic laundry expiration check on load and manual override capabilities.
+* [x] Wardrobe Analytics (Top 3 items, top outfit, top color, total wardrobe value).
+* [x] Browser `localStorage` data persistence across sessions.
+* [x] Automated test suite verifying business logic and calculations (14/14 tests passing).
 
-* **Missing Styles:**
-  The current prototype is minimally styled. The Figma design system, including typography, spacing, colors, and layout grids, still needs to be translated into the application's CSS.
+### Next Steps (Week 3)
+1. Updating `server/db/schema.sql` to represent clothing items, outfits, schedules, and wear logs in PostgreSQL.
+2. Implementing Express API routes in `server/server.js` corresponding to `httpApi.js`.
+3. Connecting the React frontend to the live Express API (`VITE_USE_MOCK_API=false`).
+4. Preparing deployment configurations for client, server, and database.
+5. Future migration to Supabase Auth and Supabase Storage.
 
-* **No Data Persistence:**
-  There is currently no server, database, or backend API connected. Inventory items, outfits, and wear logs are stored only in local React state and are lost when the page is refreshed.
-
-* **Mock Data:**
-  The current prototype uses mock clothing items and outfit data instead of persistent user data.
-
-### Next Steps
-
-Week 2 will focus on:
-
-1. Setting up the Express backend API.
-2. Configuring the PostgreSQL database.
-3. Connecting the frontend to the backend.
-4. Implementing data persistence.
-5. Beginning CSS implementation based on the Figma design.
-6. Developing the Wardrobe Gallery.
+---
 
 ## 8. AI Usage
 
-AI tools may be used during development as a supporting resource for:
+AI tools are used during development as a supporting resource for:
+* Assisting with boilerplate scaffolding and component layout design.
+* Implementing client-side canvas algorithms for background removal and dominant color extraction.
+* Structuring test suites for business logic verification.
+* Reviewing code quality, accessibility, and documentation.
 
-* Understanding programming concepts and documentation.
-* Debugging and troubleshooting errors.
-* Generating suggestions for implementation approaches.
-* Reviewing and improving code.
-* Assisting with documentation.
-
-AI-generated code and suggestions should be reviewed, tested, and understood before being incorporated into the project.
-
-The project developers remain responsible for the final implementation and functionality of the application.
+All AI-generated code and architecture are reviewed, tested, and understood by the developers. The project developers remain responsible for the implementation and functionality of the application.

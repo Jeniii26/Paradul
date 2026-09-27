@@ -1,40 +1,67 @@
-// The real client. Every function here talks to YOUR Express API.
-//
-// This is the file that matters for your finals project. mockApi.js exists so
-// you can build the interface before this has anywhere to point.
+/**
+ * paradu'l — Real HTTP Client API (httpApi.js)
+ *
+ * Implements the same function signatures as mockApi.js for future backend integration.
+ * In production or week 2+, this calls the Express/PostgreSQL API.
+ */
 
-const BASE = import.meta.env.VITE_API_BASE_URL || ''
+const BASE = import.meta.env.VITE_API_BASE_URL || '';
 
-async function request(path, options) {
+async function request(path, options = {}) {
   const response = await fetch(`${BASE}${path}`, {
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...(options.headers || {}) },
     ...options,
-  })
+  });
 
   if (!response.ok) {
-    // Try to use the API's own message; fall back to the status line.
-    let message = `${response.status} ${response.statusText}`
+    let message = `${response.status} ${response.statusText}`;
     try {
-      const body = await response.json()
-      if (body?.error) message = body.error
+      const body = await response.json();
+      if (body?.error) message = body.error;
     } catch {
-      // The body was not JSON. The status line is all we have.
+      // response body was not JSON
     }
-    throw new Error(message)
+    throw new Error(message);
   }
 
-  return response.status === 204 ? null : response.json()
+  return response.status === 204 ? null : response.json();
 }
 
-export const listSightings = () => request('/api/sightings')
+// Clothing API
+export const listClothing = () => request('/api/clothing');
+export const getClothing = (id) => request(`/api/clothing/${id}`);
+export const createClothing = (input) =>
+  request('/api/clothing', { method: 'POST', body: JSON.stringify(input) });
+export const updateClothing = (id, input) =>
+  request(`/api/clothing/${id}`, { method: 'PUT', body: JSON.stringify(input) });
+export const deleteClothing = (id) =>
+  request(`/api/clothing/${id}`, { method: 'DELETE' });
 
-export const getSighting = (id) => request(`/api/sightings/${id}`)
+// Outfits API
+export const listOutfits = () => request('/api/outfits');
+export const getOutfit = (id) => request(`/api/outfits/${id}`);
+export const createOutfit = (input) =>
+  request('/api/outfits', { method: 'POST', body: JSON.stringify(input) });
+export const updateOutfit = (id, input) =>
+  request(`/api/outfits/${id}`, { method: 'PUT', body: JSON.stringify(input) });
+export const deleteOutfit = (id) =>
+  request(`/api/outfits/${id}`, { method: 'DELETE' });
 
-export const createSighting = (input) =>
-  request('/api/sightings', { method: 'POST', body: JSON.stringify(input) })
+// Schedules API
+export const listSchedules = () => request('/api/schedules');
+export const createSchedule = (input) =>
+  request('/api/schedules', { method: 'POST', body: JSON.stringify(input) });
+export const updateSchedule = (id, input) =>
+  request(`/api/schedules/${id}`, { method: 'PUT', body: JSON.stringify(input) });
+export const deleteSchedule = (id) =>
+  request(`/api/schedules/${id}`, { method: 'DELETE' });
+export const markScheduleWorn = (id) =>
+  request(`/api/schedules/${id}/worn`, { method: 'POST' });
 
-export const updateSighting = (id, input) =>
-  request(`/api/sightings/${id}`, { method: 'PUT', body: JSON.stringify(input) })
+// Wear Records API
+export const listWearRecords = () => request('/api/wear-records');
+export const logWearRecord = (outfitId, wornDate) =>
+  request('/api/wear-records', { method: 'POST', body: JSON.stringify({ outfitId, wornDate }) });
 
-export const deleteSighting = (id) =>
-  request(`/api/sightings/${id}`, { method: 'DELETE' })
+// Reset API
+export const resetDemoData = () => request('/api/dev/reset', { method: 'POST' });
