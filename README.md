@@ -1,5 +1,9 @@
 # paradu'l
 
+[![Made with AI](https://img.shields.io/badge/Made_with-AI_assistance-blue)](AI-USAGE.md)
+
+*Built with AI assistance using ChatGPT, Claude, and Google Antigravity (Gemini). See [AI-USAGE.md](AI-USAGE.md) for full prompt logs, failure analysis, and self-authored code breakdown.*
+
 ## 1. Overview
 
 **paradu'l** is a web application that helps users digitally organize their wardrobe, mix and match outfits, and use personalized data insights to make smarter fashion choices.
@@ -231,10 +235,14 @@ Paradul-Tongol/
 
 ## 8. AI Usage
 
-AI tools are used during development as a supporting resource for:
+[![Made with AI](https://img.shields.io/badge/Made_with-AI_assistance-blue)](AI-USAGE.md)
+
+This project was built with AI assistance (ChatGPT, Claude, and Google Antigravity / Gemini) adhering to the 80/20 guideline. See [AI-USAGE.md](AI-USAGE.md) for the complete disclosure of prompts, error analysis, and self-authored code breakdown.
+
+AI tools were used during development as a supporting resource for:
 * Assisting with boilerplate scaffolding and component layout design.
 * Implementing client-side canvas algorithms for background removal and dominant color extraction.
 * Structuring test suites for business logic verification.
 * Reviewing code quality, accessibility, and documentation.
 
-All AI-generated code and architecture are reviewed, tested, and understood by the developers. The project developers remain responsible for the implementation and functionality of the application.
+All AI-generated code and architecture were reviewed, tested, and understood by the developers. The project developers remain responsible for the implementation and functionality of the application.
