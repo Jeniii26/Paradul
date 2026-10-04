@@ -18,6 +18,7 @@
       }
     },
     {
+      
       "source": "/(.*)",
       "destination": {
         "service": "client"

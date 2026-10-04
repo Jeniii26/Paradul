@@ -6,7 +6,7 @@ This project was built with AI assistance. This file is the record of it. It is
 graded as the finals badge, and it is worth 100 points.
 
 > **Note on commit history:**  
-> On September 23 and 24, my time was spent writing, clarifying, and updating `README.md` and setting up the initial Week 1 project structure. Because of that, `AI-USAGE.md` was not committed separately on those first two days. I kept my prompt notes and consolidated all entries here when our Week 2 prototype features came together on September 27.
+> On September 23 and 24, my time was spent writing, clarifying, and updating `README.md` and setting up the initial Week 1 project structure. Because of that, `AI-USAGE.md` was not committed separately on those first two days. I kept my prompt notes and consolidated all entries here when my Week 2 prototype features came together on September 27.
 
 ---
 
@@ -135,7 +135,7 @@ it in your own words.
 
 - **File:** `client/src/services/imageProcessingService.js`
 - **Commit:** https://github.com/Jeniii26/Paradul-Tongol/commit/401aa7816789a1b6e4cf8f39eb218e412341b20c
-- **What it does and why we kept it:**  
+- **What it does and why I kept it:**  
   This file handles the client-side background removal when a user uploads a clothing photo from their phone or computer.
 
   Here is how it works step-by-step:
@@ -144,4 +144,4 @@ it in your own words.
   3. **Removes the background:** It loops through every pixel in the picture and calculates the color distance to the background color. If the color is close to the background, it sets the alpha channel to 0, making that pixel completely transparent. It also softens the edges so the clothes don't look jagged.
   4. **Detects category and color:** It looks at the shape (aspect ratio) and the non-transparent pixels to automatically guess if the item is a Top, Bottom, or Shoes, and what color it is.
 
-  We kept this code because it runs 100% in the browser in less than half a second, requires no external servers or API keys, and outputs real transparent PNG images for our wardrobe gallery.
+  I kept this code because it runs 100% in the browser in less than half a second, requires no external servers or API keys, and outputs real transparent PNG images for my wardrobe gallery.

@@ -4,20 +4,35 @@
 
 *Built with AI assistance using ChatGPT, Claude, and Google Antigravity (Gemini). See [AI-USAGE.md](AI-USAGE.md) for full prompt logs, failure analysis, and self-authored code breakdown.*
 
+### Quick Links
+* **Live Deployed Application:** [https://paradul.vercel.app/](https://paradul.vercel.app/)
+* **Demo Video:** [Watch the Video Recording](https://drive.google.com/drive/folders/1KLe95kHFs4N8nk9EJBeRkLDtNpXZLj50?usp=sharing)
+* **Demo & Presentation Guide:** [docs/05-demo-video.md](docs/05-demo-video.md)
+
+---
+
 ## 1. Overview
 
-**paradu'l** is a web application that helps users digitally organize their wardrobe, mix and match outfits, and use personalized data insights to make smarter fashion choices.
+**paradu'l** is a digital wardrobe and mindful style management web application I created to help users digitally organize their wardrobe, mix and match outfits, and use personalized data insights to make smarter fashion choices.
 
-It aims to address impulsive shopping and wardrobe underutilization by providing users with a visual inventory of the clothing items they already own, allowing them to better understand and manage their personal style.
+It aims to address impulsive shopping and wardrobe underutilization by providing users with a visual inventory of clothing items they already own, allowing them to better understand and manage their personal style.
+
+### How to Access the Live Application
+You can access the live application directly in your web browser at **[https://paradul.vercel.app/](https://paradul.vercel.app/)**:
+1. Open the URL in your browser.
+2. Sign in with an existing account, or click **Create Account** to register a new personal account.
+3. Explore the 4 core views:
+   - **Gallery:** Browse clothing items, filter by category (Tops, Bottoms, Shoes), color, price (₱), or laundry status, and toggle items between clean and laundry.
+   - **Outfit Manager:** Build and view 3-piece coordinated outfits (1 Top, 1 Bottom, 1 Shoes), preview the visual stack, or use the clean-only outfit randomizer.
+   - **Calendar:** View planned outfits by date and click `[ Mark as Worn ]` to confirm an outfit was worn, which automatically schedules a 7-day laundry period for Tops and Bottoms while keeping Shoes clean.
+   - **Analytics:** View live calculations for the Top 3 Most Used clothing pieces, Top Outfit, Top Color, and Total Wardrobe Value in Philippine Pesos (`₱`).
 
 ---
 
 ## 2. Setup and Installation
 
-> **Status:** The application is currently in **Week 2 — Full Local Prototype & Feature Integration**. 
-> All core client features, local persistence (`localStorage`), real device photo uploads, client-side background removal, 3-piece outfit management, calendar scheduling, 7-day automatic laundry tracking, and closet analytics are fully functional.
->
-> *Note on Supabase:* Supabase integration has intentionally not been implemented in this phase. The application runs locally without external database credentials or API keys.
+> **Live Deployment:** The application is live and accessible at [https://paradul.vercel.app/](https://paradul.vercel.app/).
+> For local development, follow the instructions below.
 
 ### Prerequisites
 
@@ -83,9 +98,9 @@ npm run build
 
 ## 4. Features and Usage (Week 2)
 
-### 1. Mock Authentication
-* **Fashion-Forward Login View:** Includes paradu'l branding, email, password, "Remember me", and "Forgot password?" hint.
-* **Instant Prototype Access:** Click **"Use Demo Account"** to automatically fill `demo@paradul.com` / `paradul123`, or enter any valid-looking email.
+### 1. Authentication & User Accounts
+* **Fashion-Forward Login & Sign-Up:** Includes paradu'l branding, email, password, "Remember me", and clean Sign In / Create Account tabs.
+* **Flexible Access:** Sign in with existing credentials or register a new personal account.
 * **Session Persistence:** Login state persists in browser storage with an accessible logout action in the top navigation bar.
 
 ### 2. Digital Wardrobe Gallery
@@ -149,7 +164,6 @@ npm run build
   * `paradul:schedules`
   * `paradul:wear_records`
   * `paradul:auth_user`
-* A **"Reset Demo"** button in the header allows restoring the default dataset at any time.
 
 ---
 
@@ -160,12 +174,14 @@ Paradul-Tongol/
 ├── client/
 │   ├── src/
 │   │   ├── api/
-│   │   │   ├── index.js              # Unified API gateway (mockApi vs httpApi)
+│   │   │   ├── index.js              # Unified API gateway (mockApi vs httpApi vs supabaseApi)
 │   │   │   ├── mockApi.js            # LocalStorage persistence with simulated delay
 │   │   │   ├── httpApi.js            # HTTP client for future Express/PostgreSQL backend
+│   │   │   ├── supabaseApi.js        # Supabase PostgreSQL client integration
+│   │   │   ├── supabaseClient.js     # Supabase client initializer
 │   │   │   └── sampleData.js         # Pre-loaded wardrobe items, outfits, and wear history
 │   │   ├── services/
-│   │   │   ├── authService.js        # Mock authentication and session management
+│   │   │   ├── authService.js        # Authentication and session management
 │   │   │   ├── laundryService.js     # 7-day wear laundry rules and expiration logic
 │   │   │   ├── analyticsService.js   # Pure calculations for top items, outfits, and value
 │   │   │   └── imageProcessingService.js # Canvas background removal & detection
@@ -176,11 +192,10 @@ Paradul-Tongol/
 │   │   │   ├── Calendar/             # CalendarView, ScheduleModal
 │   │   │   ├── Analytics/            # AnalyticsView
 │   │   │   ├── Header.jsx            # Top navigation bar and user menu
-│   │   │   ├── Login.jsx             # Mock login view
-│   │   │   └── DemoNotice.jsx        # Demo mode indicator banner
+│   │   │   └── Login.jsx             # Login and sign-up view
 │   │   ├── App.jsx                   # Central state orchestration and tab routing
 │   │   ├── main.jsx                  # React application entry point
-│   │   └── styles.css                # Design system tokens, checkered canvas, and styling
+│   │   └── styles.css                # Design system tokens, warm porcelain theme, and styling
 │   ├── test-services.js              # Automated test suite for business rules & analytics
 │   ├── index.html                    # Application HTML shell
 │   ├── package.json                  # Dependencies and scripts (dev, build, test)
@@ -245,4 +260,4 @@ AI tools were used during development as a supporting resource for:
 * Structuring test suites for business logic verification.
 * Reviewing code quality, accessibility, and documentation.
 
-All AI-generated code and architecture were reviewed, tested, and understood by the developers. The project developers remain responsible for the implementation and functionality of the application.
+I reviewed, tested, and understood all AI-generated code and architecture. I remain fully responsible for the implementation and functionality of the application.
