@@ -17,7 +17,6 @@ import OutfitManagerView from './components/OutfitManager/OutfitManagerView.jsx'
 import CalendarView from './components/Calendar/CalendarView.jsx';
 import AnalyticsView from './components/Analytics/AnalyticsView.jsx';
 import ScheduleModal from './components/Calendar/ScheduleModal.jsx';
-import DemoNotice from './components/DemoNotice.jsx';
 
 import {
   listClothing,
@@ -34,10 +33,16 @@ import {
   deleteSchedule,
   markScheduleWorn,
   listWearRecords,
-  resetDemoData,
 } from './api/index.js';
 
-import { getCurrentSession, loginWithEmail, logout } from './services/authService.js';
+import {
+  getCurrentSession,
+  getActiveUser,
+  loginWithEmail,
+  signUpWithEmail,
+  logout,
+  onAuthStateChange,
+} from './services/authService.js';
 import { toggleItemLaundryStatus } from './services/laundryService.js';
 import { IconCheck } from './components/common/Icons.jsx';
 
@@ -94,6 +99,27 @@ export default function App() {
     }
   }, []);
 
+  // Restore active Supabase session on mount and subscribe to auth changes
+  useEffect(() => {
+    let isMounted = true;
+    getActiveUser().then((user) => {
+      if (isMounted && user) {
+        setCurrentUser(user);
+      }
+    });
+
+    const unsubscribe = onAuthStateChange((user) => {
+      if (isMounted) {
+        setCurrentUser(user);
+      }
+    });
+
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
+  }, []);
+
   useEffect(() => {
     if (currentUser) {
       loadAppData();
@@ -109,6 +135,13 @@ export default function App() {
     setCurrentUser(user);
     setActiveTab('gallery');
     showToast(`Welcome back, ${user.name}!`);
+  };
+
+  const handleSignUp = async (email, password, name) => {
+    const user = await signUpWithEmail(email, password, name);
+    setCurrentUser(user);
+    setActiveTab('gallery');
+    showToast(`Account created! Welcome to paradu'l, ${user.name}!`);
   };
 
   const handleLogout = async () => {
@@ -266,41 +299,19 @@ export default function App() {
     }
   };
 
-  // ==========================================================================
-  // DEMO UTILITIES
-  // ==========================================================================
-
-  const handleResetDemo = async () => {
-    if (!window.confirm('Reset all wardrobe data back to initial demo seeds?')) return;
-    try {
-      const reset = await resetDemoData();
-      setClothingItems(reset.clothing);
-      setOutfits(reset.outfits);
-      setSchedules(reset.schedules);
-      setWearRecords(reset.wearRecords);
-      showToast('Wardrobe reset to demo seeds.');
-    } catch (err) {
-      showToast(`Reset error: ${err.message}`);
-    }
-  };
-
-  // If user is not authenticated in mock session, show the login view
+  // If user is not authenticated, show the login view
   if (!currentUser) {
-    return <Login onLoginSuccess={handleLogin} />;
+    return <Login onLoginSuccess={handleLogin} onSignUpSuccess={handleSignUp} />;
   }
 
   return (
     <div className="app-container">
-      {/* Top Demo Notice from starter template */}
-      <DemoNotice />
-
       {/* Top Brand Header & 4 Primary Navigation Tabs */}
       <Header
         activeTab={activeTab}
         onSelectTab={setActiveTab}
         currentUser={currentUser}
         onLogout={handleLogout}
-        onResetDemo={handleResetDemo}
       />
 
       {/* Main Content Area */}

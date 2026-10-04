@@ -16,10 +16,9 @@ import {
   IconCalendar,
   IconAnalytics,
   IconLogOut,
-  IconRefresh,
 } from './common/Icons.jsx';
 
-export default function Header({ activeTab, onSelectTab, currentUser, onLogout, onResetDemo }) {
+export default function Header({ activeTab, onSelectTab, currentUser, onLogout }) {
   const tabs = [
     { id: 'gallery', label: 'Gallery', icon: IconShirt },
     { id: 'outfits', label: 'Outfit Manager', icon: IconHanger },
@@ -32,12 +31,15 @@ export default function Header({ activeTab, onSelectTab, currentUser, onLogout, 
       <div className="header-inner">
         {/* Branding */}
         <div className="brand-group">
-          <div className="brand-logo" onClick={() => onSelectTab('gallery')} role="button" tabIndex={0}>
-            <span className="brand-monogram">P</span>
-            <div className="brand-text">
-              <span className="brand-name">paradu'l</span>
-              <span className="brand-tagline">wardrobe & style</span>
-            </div>
+          <div
+            className="brand-logo"
+            onClick={() => onSelectTab('gallery')}
+            role="button"
+            tabIndex={0}
+            title="paradu'l — wardrobe & style"
+          >
+            <img src="/logo.png" alt="paradu'l" className="brand-logo-img" />
+            <span className="brand-tagline">wardrobe & style</span>
           </div>
         </div>
 
@@ -67,19 +69,6 @@ export default function Header({ activeTab, onSelectTab, currentUser, onLogout, 
 
         {/* User Session & Utility Controls */}
         <div className="header-actions">
-          {onResetDemo && (
-            <button
-              type="button"
-              className="btn-ghost-icon"
-              onClick={onResetDemo}
-              title="Reset to Initial Demo Data"
-              aria-label="Reset demo data"
-            >
-              <IconRefresh size={16} />
-              <span className="btn-label-desktop">Reset Demo</span>
-            </button>
-          )}
-
           {currentUser && (
             <div className="user-profile-menu">
               <div className="user-avatar-badge" title={currentUser.email}>
@@ -90,8 +79,8 @@ export default function Header({ activeTab, onSelectTab, currentUser, onLogout, 
                 type="button"
                 className="btn-ghost-icon logout-btn"
                 onClick={onLogout}
-                title="Log Out (Mock Session)"
-                aria-label="Log Out"
+                title="Sign Out"
+                aria-label="Sign Out"
               >
                 <IconLogOut size={16} />
               </button>

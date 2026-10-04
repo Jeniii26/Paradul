@@ -5,7 +5,11 @@
  * In production or week 2+, this calls the Express/PostgreSQL API.
  */
 
-const BASE = import.meta.env.VITE_API_BASE_URL || '';
+const env = (typeof import.meta !== 'undefined' && import.meta.env)
+  ? import.meta.env
+  : (typeof process !== 'undefined' && process.env ? process.env : {});
+
+const BASE = env.VITE_API_BASE_URL || '';
 
 async function request(path, options = {}) {
   const response = await fetch(`${BASE}${path}`, {

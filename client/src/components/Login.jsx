@@ -1,20 +1,18 @@
 /**
- * paradu'l — Mock Login View
+ * paradu'l — Authentication View (Sign In & Sign Up)
  *
- * DEVELOPER NOTE:
- * This login screen demonstrates the authentication user journey in the local prototype.
- * It uses local React state and browser localStorage.
- * Supabase Auth will replace this implementation in a future phase with real JWT tokens
- * and database sessions.
+ * Supports both Sign In and Sign Up using real Supabase Auth
+ * with graceful fallback to local mock authentication.
  */
 
 import { useState } from 'react';
-import { DEMO_USER } from '../services/authService.js';
-import { IconShirt, IconSparkles } from './common/Icons.jsx';
+import { IconShirt, IconCheck } from './common/Icons.jsx';
 
-export default function Login({ onLoginSuccess }) {
-  const [email, setEmail] = useState('demo@paradul.com');
-  const [password, setPassword] = useState('paradul123');
+export default function Login({ onLoginSuccess, onSignUpSuccess }) {
+  const [authMode, setAuthMode] = useState('signin'); // 'signin' | 'signup'
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [rememberMe, setRememberMe] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
@@ -27,18 +25,16 @@ export default function Login({ onLoginSuccess }) {
     setIsLoading(true);
 
     try {
-      await onLoginSuccess(email, password, rememberMe);
+      if (authMode === 'signup' && onSignUpSuccess) {
+        await onSignUpSuccess(email, password, name);
+      } else {
+        await onLoginSuccess(email, password, rememberMe);
+      }
     } catch (err) {
-      setErrorMessage(err.message || 'Login failed. Please check your credentials.');
+      setErrorMessage(err.message || 'Authentication failed. Please check your credentials.');
     } finally {
       setIsLoading(false);
     }
-  };
-
-  const handleUseDemoAccount = () => {
-    setEmail(DEMO_USER.email);
-    setPassword('paradul123');
-    setInfoMessage('Filled demo credentials: demo@paradul.com');
   };
 
   return (
@@ -46,29 +42,33 @@ export default function Login({ onLoginSuccess }) {
       <div className="login-card-container">
         {/* Brand identity header */}
         <div className="login-brand-header">
-          <div className="login-logo-mark">
-            <IconShirt size={28} />
-          </div>
-          <h1 className="login-app-title">paradu'l</h1>
+          <img src="/logo.png" alt="paradu'l" className="login-logo-img" />
           <p className="login-app-subtitle">
             Curate your digital wardrobe, craft timeless outfits, and elevate your personal style.
           </p>
         </div>
 
-        {/* Temporary prototype notice */}
-        <div className="mock-auth-notice" role="note">
-          <span className="notice-badge">Prototype Mode</span>
-          <p>
-            Local mock authentication is active. You may log in with any valid email and password,
-            or click below to use the pre-configured demo account.
-          </p>
+        {/* Auth Mode Toggle Tabs (Sign In vs Sign Up) */}
+        <div className="auth-mode-tabs" role="tablist">
           <button
             type="button"
-            className="btn-link-action"
-            onClick={handleUseDemoAccount}
+            className={`auth-mode-tab-btn ${authMode === 'signin' ? 'active' : ''}`}
+            onClick={() => {
+              setAuthMode('signin');
+              setErrorMessage('');
+            }}
           >
-            <IconSparkles size={14} />
-            <span>Use Demo Account (demo@paradul.com)</span>
+            Sign In
+          </button>
+          <button
+            type="button"
+            className={`auth-mode-tab-btn ${authMode === 'signup' ? 'active' : ''}`}
+            onClick={() => {
+              setAuthMode('signup');
+              setErrorMessage('');
+            }}
+          >
+            Create Account
           </button>
         </div>
 
@@ -84,8 +84,23 @@ export default function Login({ onLoginSuccess }) {
           </div>
         )}
 
-        {/* Login form */}
+        {/* Auth form */}
         <form className="login-form" onSubmit={handleSubmit} noValidate>
+          {authMode === 'signup' && (
+            <div className="form-group">
+              <label htmlFor="login-name">Full Name</label>
+              <input
+                id="login-name"
+                type="text"
+                placeholder="e.g. Alex Rivera"
+                value={name}
+                onChange={(e) => setName(e.target.value)}
+                disabled={isLoading}
+                autoComplete="name"
+              />
+            </div>
+          )}
+
           <div className="form-group">
             <label htmlFor="login-email">Email Address</label>
             <input
@@ -103,60 +118,88 @@ export default function Login({ onLoginSuccess }) {
           <div className="form-group">
             <div className="form-label-row">
               <label htmlFor="login-password">Password</label>
-              <button
-                type="button"
-                className="btn-forgot-password"
-                onClick={() => setInfoMessage('Demo mode: Any password with at least 4 characters is accepted.')}
-              >
-                Forgot password?
-              </button>
+              {authMode === 'signin' && (
+                <button
+                  type="button"
+                  className="btn-forgot-password"
+                  onClick={() => setInfoMessage('If you forgot your password, please reset it via your Supabase dashboard or registered email.')}
+                >
+                  Forgot password?
+                </button>
+              )}
             </div>
             <input
               id="login-password"
               type="password"
-              placeholder="••••••••"
+              placeholder={authMode === 'signup' ? 'At least 6 characters' : '••••••••'}
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               disabled={isLoading}
               required
-              autoComplete="current-password"
+              autoComplete={authMode === 'signup' ? 'new-password' : 'current-password'}
             />
           </div>
 
-          <div className="form-checkbox-row">
-            <label className="checkbox-label">
-              <input
-                type="checkbox"
-                checked={rememberMe}
-                onChange={(e) => setRememberMe(e.target.checked)}
-                disabled={isLoading}
-              />
-              <span>Remember me on this browser</span>
-            </label>
-          </div>
+          {authMode === 'signin' && (
+            <div className="form-checkbox-row">
+              <label className="checkbox-label">
+                <input
+                  type="checkbox"
+                  checked={rememberMe}
+                  onChange={(e) => setRememberMe(e.target.checked)}
+                  disabled={isLoading}
+                />
+                <span>Remember me on this browser</span>
+              </label>
+            </div>
+          )}
 
           <button
             type="submit"
             className="btn-primary-large"
             disabled={isLoading}
           >
-            {isLoading ? 'Entering wardrobe...' : 'Enter paradu\'l'}
+            {isLoading
+              ? authMode === 'signup'
+                ? 'Creating account...'
+                : 'Signing in...'
+              : authMode === 'signup'
+              ? 'Create paradu\'l Account'
+              : 'Sign In to paradu\'l'}
           </button>
         </form>
 
         <footer className="login-card-footer">
           <p className="signup-prompt">
-            Don't have an account?{' '}
-            <button
-              type="button"
-              className="btn-link-action"
-              onClick={() => setInfoMessage('In prototype mode, any new email automatically signs in!')}
-            >
-              Sign up for early access
-            </button>
-          </p>
-          <p className="future-supabase-comment">
-            /* Note: Supabase Auth integration scheduled for upcoming phase */
+            {authMode === 'signin' ? (
+              <>
+                Don't have an account?{' '}
+                <button
+                  type="button"
+                  className="btn-link-action"
+                  onClick={() => {
+                    setAuthMode('signup');
+                    setErrorMessage('');
+                  }}
+                >
+                  Create one now
+                </button>
+              </>
+            ) : (
+              <>
+                Already have an account?{' '}
+                <button
+                  type="button"
+                  className="btn-link-action"
+                  onClick={() => {
+                    setAuthMode('signin');
+                    setErrorMessage('');
+                  }}
+                >
+                  Sign in here
+                </button>
+              </>
+            )}
           </p>
         </footer>
       </div>
