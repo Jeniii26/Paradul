@@ -42,7 +42,7 @@ export default function Login({ onLoginSuccess, onSignUpSuccess }) {
       <div className="login-card-container">
         {/* Brand identity header */}
         <div className="login-brand-header">
-          <img src="/logo.png" alt="paradu'l" className="login-logo-img" />
+          <img src={`${import.meta.env.BASE_URL}logo.png`} alt="paradu'l" className="login-logo-img" />
           <p className="login-app-subtitle">
             Curate your digital wardrobe, craft timeless outfits, and elevate your personal style.
           </p>

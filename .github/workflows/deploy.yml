@@ -39,10 +39,10 @@ jobs:
         working-directory: ./client
         env:
           VITE_BASE_PATH: /${{ github.event.repository.name }}/
-          VITE_USE_MOCK_API: ${{ vars.VITE_USE_MOCK_API }}
+          VITE_USE_MOCK_API: ${{ vars.VITE_USE_MOCK_API || 'false' }}
           VITE_API_BASE_URL: ${{ vars.VITE_API_BASE_URL }}
-          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL || secrets.VITE_SUPABASE_URL }}
-          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY || secrets.VITE_SUPABASE_ANON_KEY }}
+          VITE_SUPABASE_URL: ${{ vars.VITE_SUPABASE_URL || secrets.VITE_SUPABASE_URL || 'https://vmtsveavfkooxvstqdwn.supabase.co' }}
+          VITE_SUPABASE_ANON_KEY: ${{ vars.VITE_SUPABASE_ANON_KEY || secrets.VITE_SUPABASE_ANON_KEY || 'sb_publishable_nZBgAvnGISdqlLY09eWmpQ_qIwjbShm' }}
         run: npm run build
 
       - name: Setup Pages

@@ -65,7 +65,7 @@ export default function Header({ activeTab, onSelectTab, currentUser, onLogout }
             tabIndex={0}
             title="paradu'l — digital wardrobe"
           >
-            <img src="/logo.png" alt="paradu'l" className="wireframe-logo-img" />
+            <img src={`${import.meta.env.BASE_URL}logo.png`} alt="paradu'l" className="wireframe-logo-img" />
           </div>
 
           <div className="header-account-wrap" ref={accountRef}>

@@ -153,10 +153,11 @@ export default function GalleryView({
         </div>
         <div className="quote-hero-right">
           <img
-            src="/banner.png"
+            src={`${import.meta.env.BASE_URL}banner.png`}
             alt="Laundry Basket Illustration"
             className="quote-basket-artwork"
           />
+
         </div>
       </section>
 
