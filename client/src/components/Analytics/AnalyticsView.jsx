@@ -288,7 +288,9 @@ export default function AnalyticsView({
                   <tr key={rec.id || i}>
                     <td className="wear-log-date">{dateStr}</td>
                     <td className="wear-log-outfit">{rec.outfit?.name || '—'}</td>
-                    <td className="wear-log-style">{rec.outfit?.style || '—'}</td>
+                    <td className="wear-log-style">
+                      <span className="wear-log-style-badge">{rec.outfit?.style || 'Casual'}</span>
+                    </td>
                   </tr>
                 );
               })}

@@ -3812,7 +3812,7 @@ button:disabled, .btn-primary-medium:disabled, .btn-primary-large:disabled {
   border-radius: 20px;
   padding: 32px 36px;
   box-shadow: var(--shadow-sm);
-  margin-top: 10px;
+  margin-bottom: 32px;
 }
 
 .podium-section-header {
@@ -4170,14 +4170,13 @@ button:disabled, .btn-primary-medium:disabled, .btn-primary-large:disabled {
 
 /* Recent Wear Logs */
 .recent-wearlogs-card {
-  margin-bottom: 24px;
+  margin-bottom: 36px;
 }
 
 .wear-logs-table {
   width: 100%;
   border-collapse: collapse;
-  font-size: 0.88rem;
-  margin-top: 4px;
+  margin-top: 8px;
 }
 
 .wear-logs-table thead tr {
@@ -4191,12 +4190,28 @@ button:disabled, .btn-primary-medium:disabled, .btn-primary-large:disabled {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   color: var(--muted);
-  padding: 0 12px 10px 0;
+  padding: 0 16px 12px 0;
+}
+
+.wear-logs-table th:first-child,
+.wear-log-date {
+  width: 150px;
+}
+
+.wear-logs-table th:nth-child(2),
+.wear-log-outfit {
+  width: auto;
+}
+
+.wear-logs-table th:last-child,
+.wear-log-style {
+  width: 140px;
+  text-align: right;
 }
 
 .wear-logs-table tbody tr {
   border-bottom: 1px solid var(--line);
-  transition: background-color 0.12s ease;
+  transition: background-color 0.15s ease;
 }
 
 .wear-logs-table tbody tr:last-child {
@@ -4208,26 +4223,41 @@ button:disabled, .btn-primary-medium:disabled, .btn-primary-large:disabled {
 }
 
 .wear-logs-table td {
-  padding: 11px 12px 11px 0;
+  padding: 14px 16px 14px 0;
   color: var(--fg);
   vertical-align: middle;
 }
 
 .wear-log-date {
+  font-size: 0.88rem;
   font-weight: 600;
   color: var(--accent) !important;
   white-space: nowrap;
-  width: 130px;
 }
 
 .wear-log-outfit {
   font-family: var(--font-display);
-  font-size: 1rem;
+  font-size: 1.22rem;
+  font-weight: 600;
+  color: var(--fg);
+  line-height: 1.2;
 }
 
 .wear-log-style {
-  font-size: 0.8rem;
-  color: var(--fg-secondary) !important;
+  text-align: right;
+}
+
+.wear-log-style-badge {
+  display: inline-block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: var(--fg-secondary);
+  background-color: var(--card-inset);
+  border: 1px solid var(--line);
+  padding: 3px 10px;
+  border-radius: 9999px;
 }
 
 /* ============================================================================
@@ -4396,6 +4426,7 @@ button:disabled, .btn-primary-medium:disabled, .btn-primary-large:disabled {
     width: 100%;
     justify-content: flex-start;
     flex-wrap: wrap;
+    gap: 12px;
   }
 
   /* Main content padding */
