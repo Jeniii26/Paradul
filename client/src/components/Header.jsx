@@ -1,65 +1,128 @@
 /**
  * paradu'l — Main Header and Top Navigation Bar
  *
- * Implements the 4 core navigation tabs:
- * 1. Gallery
- * 2. Outfit Manager
- * 3. Calendar
- * 4. Analytics
- *
- * Displays active tab indicators, branding, user session, and mock logout.
+ * Implements the Figma wireframe header specification:
+ * 1. Topmost edge-to-edge dark plum banner: "REDISCOVER CLOTHES YOU ALREADY OWN"
+ * 2. Centered paradu'l illustration logo with Account access in top-right
+ * 3. Ornamental flourish divider: ◇ ꕤ ◇
+ * 4. Centered editorial navigation tabs: Gallery | Outfit Manager | Calendar | Analytics
+ * 5. Active tab underline indicator
+ * 6. Bottom ornamental flourish divider: ◇ ꕤ ◇
  */
 
+import { useState, useRef, useEffect } from 'react';
 import {
-  IconShirt,
-  IconHanger,
-  IconCalendar,
-  IconAnalytics,
   IconLogOut,
+  FlourishDivider,
 } from './common/Icons.jsx';
 
 export default function Header({ activeTab, onSelectTab, currentUser, onLogout }) {
+  const [isAccountOpen, setIsAccountOpen] = useState(false);
+  const accountRef = useRef(null);
+
   const tabs = [
-    { id: 'gallery', label: 'Gallery', icon: IconShirt },
-    { id: 'outfits', label: 'Outfit Manager', icon: IconHanger },
-    { id: 'calendar', label: 'Calendar', icon: IconCalendar },
-    { id: 'analytics', label: 'Analytics', icon: IconAnalytics },
+    { id: 'gallery', label: 'Gallery' },
+    { id: 'outfits', label: 'Outfit Manager' },
+    { id: 'calendar', label: 'Calendar' },
+    { id: 'analytics', label: 'Analytics' },
   ];
 
+  // Close account dropdown on outside click
+  useEffect(() => {
+    function handleClickOutside(event) {
+      if (accountRef.current && !accountRef.current.contains(event.target)) {
+        setIsAccountOpen(false);
+      }
+    }
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
-    <header className="app-header">
-      <div className="header-inner">
-        {/* Branding */}
-        <div className="brand-group">
+    <header className="app-header-wireframe">
+      {/* 1. Top edge-to-edge banner */}
+      <div className="top-rediscover-banner">
+        <span>REDISCOVER</span>
+        <span className="banner-spacer">&nbsp;&nbsp;&nbsp;&nbsp;</span>
+        <span>CLOTHES</span>
+        <span className="banner-spacer">&nbsp;&nbsp;&nbsp;&nbsp;</span>
+        <span>YOU</span>
+        <span className="banner-spacer">&nbsp;&nbsp;&nbsp;&nbsp;</span>
+        <span>ALREADY</span>
+        <span className="banner-spacer">&nbsp;&nbsp;&nbsp;&nbsp;</span>
+        <span>OWN</span>
+      </div>
+
+      <div className="header-wireframe-inner">
+        {/* Top Logo & Account Row */}
+        <div className="header-brand-row">
+          <div className="header-brand-spacer" aria-hidden="true" />
+          
           <div
-            className="brand-logo"
+            className="header-brand-center"
             onClick={() => onSelectTab('gallery')}
             role="button"
             tabIndex={0}
-            title="paradu'l — wardrobe & style"
+            title="paradu'l — digital wardrobe"
           >
-            <img src="/logo.png" alt="paradu'l" className="brand-logo-img" />
-            <span className="brand-tagline">wardrobe & style</span>
+            <img src="/logo.png" alt="paradu'l" className="wireframe-logo-img" />
+          </div>
+
+          <div className="header-account-wrap" ref={accountRef}>
+            <button
+              type="button"
+              className="btn-account-nav"
+              onClick={() => setIsAccountOpen(!isAccountOpen)}
+              aria-expanded={isAccountOpen}
+              aria-label="Account Menu"
+            >
+              <span>Account</span>
+            </button>
+
+            {isAccountOpen && currentUser && (
+              <div className="account-dropdown-card">
+                <div className="account-dropdown-header">
+                  <div className="user-avatar-badge">{currentUser.avatar || 'U'}</div>
+                  <div className="account-user-meta">
+                    <strong>{currentUser.name}</strong>
+                    <span className="account-user-email">{currentUser.email}</span>
+                  </div>
+                </div>
+                <hr className="account-dropdown-divider" />
+                <button
+                  type="button"
+                  className="account-dropdown-item signout"
+                  onClick={() => {
+                    setIsAccountOpen(false);
+                    onLogout();
+                  }}
+                >
+                  <IconLogOut size={15} />
+                  <span>Sign Out</span>
+                </button>
+              </div>
+            )}
           </div>
         </div>
 
-        {/* Top 4 Primary Navigation Tabs */}
-        <nav className="header-nav" aria-label="Main Navigation">
-          <ul className="nav-tabs-list">
+        {/* First flourish divider */}
+        <FlourishDivider className="header-top-flourish" />
+
+        {/* Primary Navigation Tabs */}
+        <nav className="header-nav-wireframe" aria-label="Main Navigation">
+          <ul className="nav-wireframe-list">
             {tabs.map((tab) => {
-              const Icon = tab.icon;
               const isActive = activeTab === tab.id;
               return (
-                <li key={tab.id}>
+                <li key={tab.id} className="nav-wireframe-item">
                   <button
                     type="button"
-                    className={`nav-tab-btn ${isActive ? 'active' : ''}`}
+                    className={`nav-wireframe-btn ${isActive ? 'active' : ''}`}
                     onClick={() => onSelectTab(tab.id)}
                     aria-current={isActive ? 'page' : undefined}
                   >
-                    <Icon size={16} />
                     <span>{tab.label}</span>
-                    {isActive && <span className="active-pill-indicator" />}
+                    {isActive && <span className="nav-wireframe-underline" />}
                   </button>
                 </li>
               );
@@ -67,26 +130,8 @@ export default function Header({ activeTab, onSelectTab, currentUser, onLogout }
           </ul>
         </nav>
 
-        {/* User Session & Utility Controls */}
-        <div className="header-actions">
-          {currentUser && (
-            <div className="user-profile-menu">
-              <div className="user-avatar-badge" title={currentUser.email}>
-                {currentUser.avatar || 'U'}
-              </div>
-              <span className="user-display-name">{currentUser.name}</span>
-              <button
-                type="button"
-                className="btn-ghost-icon logout-btn"
-                onClick={onLogout}
-                title="Sign Out"
-                aria-label="Sign Out"
-              >
-                <IconLogOut size={16} />
-              </button>
-            </div>
-          )}
-        </div>
+        {/* Second flourish divider */}
+        <FlourishDivider className="header-bottom-flourish" />
       </div>
     </header>
   );

@@ -1,8 +1,14 @@
 /**
- * paradu'l — Outfit Card Component
+ * paradu'l — Outfit Card Component (Wireframe Spec)
  *
- * Displays a 3-part visual stack (Top -> Bottom -> Shoes), outfit metadata,
- * wear history counter, and actions: Schedule, Edit, Delete.
+ * Implements the Figma wireframe outfit card layout:
+ * - 3 side-by-side rectangular piece photo frames: Top | Bottom | Shoes
+ * - Micro-label for style/occasion: "CASUAL · 3 PIECES"
+ * - Cormorant Garamond serif title: "Daily Blue & Lilac Fit"
+ * - Hairline divider
+ * - Bottom action bar:
+ *   - Left: "Schedule" primary button
+ *   - Right: Edit (pencil) & Delete (trash) square outline buttons
  */
 
 import { IconCalendar, IconEdit, IconTrash, IconShirt, IconPants, IconShoes } from '../common/Icons.jsx';
@@ -21,89 +27,88 @@ export default function OutfitCard({
   const bottomItem = clothingMap.get(String(outfit.bottomId));
   const shoesItem = clothingMap.get(String(outfit.shoesId));
 
-  // Check if any piece is currently in laundry
   const isAnyInLaundry =
     topItem?.laundryStatus === 'in_laundry' ||
     bottomItem?.laundryStatus === 'in_laundry' ||
     shoesItem?.laundryStatus === 'in_laundry';
 
+  const microLabel = `${(outfit.style || 'CASUAL').toUpperCase()} · 3-PIECE ENSEMBLE`;
+
   return (
-    <article className="outfit-card">
-      {/* 3-Tier Visual Stack: Top, Bottom, Shoes */}
-      <div className="outfit-visual-stack">
+    <article className="wireframe-outfit-card">
+      {/* 3-Trio Side-by-Side Photo Frames */}
+      <div className="outfit-wireframe-frames-row">
         {/* Top Slot */}
-        <div className="outfit-stack-tier top-tier" title={`Top: ${topItem?.name || 'Missing Top'}`}>
+        <div className="outfit-piece-frame top-frame" title={`Top: ${topItem?.name || 'Top piece'}`}>
           <div className="transparency-checkered-canvas" />
           {topItem ? (
-            <img src={topItem.imageUrl} alt={topItem.name} className="tier-image" />
+            <img src={topItem.imageUrl} alt={topItem.name} className="piece-frame-img" />
           ) : (
-            <div className="tier-placeholder"><IconShirt size={20} /></div>
+            <div className="piece-placeholder"><IconShirt size={22} /></div>
           )}
-          <span className="tier-label">Top</span>
         </div>
 
         {/* Bottom Slot */}
-        <div className="outfit-stack-tier bottom-tier" title={`Bottom: ${bottomItem?.name || 'Missing Bottom'}`}>
+        <div className="outfit-piece-frame bottom-frame" title={`Bottom: ${bottomItem?.name || 'Bottom piece'}`}>
           <div className="transparency-checkered-canvas" />
           {bottomItem ? (
-            <img src={bottomItem.imageUrl} alt={bottomItem.name} className="tier-image" />
+            <img src={bottomItem.imageUrl} alt={bottomItem.name} className="piece-frame-img" />
           ) : (
-            <div className="tier-placeholder"><IconPants size={20} /></div>
+            <div className="piece-placeholder"><IconPants size={22} /></div>
           )}
-          <span className="tier-label">Bottom</span>
         </div>
 
         {/* Shoes Slot */}
-        <div className="outfit-stack-tier shoes-tier" title={`Shoes: ${shoesItem?.name || 'Missing Shoes'}`}>
+        <div className="outfit-piece-frame shoes-frame" title={`Shoes: ${shoesItem?.name || 'Shoes piece'}`}>
           <div className="transparency-checkered-canvas" />
           {shoesItem ? (
-            <img src={shoesItem.imageUrl} alt={shoesItem.name} className="tier-image" />
+            <img src={shoesItem.imageUrl} alt={shoesItem.name} className="piece-frame-img" />
           ) : (
-            <div className="tier-placeholder"><IconShoes size={20} /></div>
+            <div className="piece-placeholder"><IconShoes size={22} /></div>
           )}
-          <span className="tier-label">Shoes</span>
         </div>
       </div>
 
-      {/* Outfit details and metadata */}
-      <div className="outfit-info-panel">
-        <div className="outfit-title-row">
-          <h3 className="outfit-name">{outfit.name}</h3>
+      {/* Outfit Information */}
+      <div className="outfit-wireframe-info">
+        <span className="outfit-micro-label">{microLabel}</span>
+
+        <div className="outfit-title-wrap">
+          <h3 className="outfit-serif-title" title={outfit.name}>
+            {outfit.name}
+          </h3>
           {wearCount > 0 && (
-            <span className="wear-count-badge" title={`Worn ${wearCount} time${wearCount === 1 ? '' : 's'}`}>
-              {wearCount} {wearCount === 1 ? 'wear' : 'wears'}
+            <span className="outfit-wear-badge" title={`Confirmed worn ${wearCount} times`}>
+              Worn {wearCount}×
             </span>
           )}
         </div>
 
-        <div className="outfit-meta-tags">
-          {outfit.style && <span className="meta-tag">{outfit.style}</span>}
-          {outfit.colorTheme && <span className="meta-tag theme-tag">{outfit.colorTheme}</span>}
-          {isAnyInLaundry && (
-            <span className="meta-tag laundry-alert-tag">Contains pieces in laundry</span>
-          )}
-        </div>
+        {isAnyInLaundry && (
+          <span className="outfit-laundry-notice">
+            Note: Contains pieces currently in laundry
+          </span>
+        )}
 
-        {outfit.notes && <p className="outfit-notes-text">{outfit.notes}</p>}
+        <div className="card-hairline-sep" />
 
-        {/* Actions Toolbar */}
-        <div className="outfit-card-actions">
+        {/* Bottom Action Bar */}
+        <div className="outfit-bottom-action-bar">
           <button
             type="button"
-            className="btn-primary-small"
+            className="btn-outfit-schedule-wireframe"
             onClick={() => onSchedule(outfit)}
-            title="Schedule this outfit on your calendar"
+            title="Schedule this outfit on the calendar"
           >
-            <IconCalendar size={14} />
             <span>Schedule</span>
           </button>
 
-          <div className="aux-actions-group">
+          <div className="outfit-aux-buttons-wireframe">
             <button
               type="button"
-              className="btn-action-icon"
+              className="btn-wireframe-icon-square"
               onClick={() => onEdit(outfit)}
-              title="Edit outfit combination"
+              title="Edit outfit composition"
               aria-label={`Edit ${outfit.name}`}
             >
               <IconEdit size={14} />
@@ -111,9 +116,9 @@ export default function OutfitCard({
 
             <button
               type="button"
-              className="btn-action-icon danger"
+              className="btn-wireframe-icon-square danger"
               onClick={() => onDelete(outfit.id)}
-              title="Delete outfit (clothing items will not be deleted)"
+              title="Delete outfit"
               aria-label={`Delete ${outfit.name}`}
             >
               <IconTrash size={14} />

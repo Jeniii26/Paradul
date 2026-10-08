@@ -1,25 +1,26 @@
 /**
- * paradu'l — Digital Wardrobe Gallery View
+ * paradu'l — Digital Wardrobe Gallery View (Wireframe Spec)
  *
- * Primary wardrobe dashboard supporting:
- * - Filtering by primary category (Top, Bottom, Shoes), color, style, price range, laundry status
- * - Combinable active filters with quick reset
- * - Responsive clothing grid with transparency-safe cards
- * - Real photo upload trigger
- * - Laundry status toggling and item deletion
- * - Meaningful empty states
+ * Implements the Figma wireframe Gallery specification:
+ * 1. Hero Motivational Quote Banner with Cormorant Garamond quote and laundry basket artwork
+ * 2. Ornamental flourish divider: ◇ ꕤ ◇
+ * 3. Page title: "Digital Wardrobe" & dynamic curated pieces subtitle
+ * 4. Category Pills: All | Tops | Bottoms | Shoes
+ * 5. Toolbar with Search and compact STYLE, COLOR, STATUS, MAX PRICE selects
+ * 6. Responsive 3-column clothing card grid
  */
 
 import { useState, useMemo } from 'react';
 import ClothingCard from './ClothingCard.jsx';
 import UploadModal from './UploadModal.jsx';
+import EditClothingModal from './EditClothingModal.jsx';
 import {
   IconPlus,
   IconFilter,
   IconRefresh,
-  IconShirt,
-  IconPants,
-  IconShoes,
+  IconSearch,
+  IconChevronDown,
+  FlourishDivider,
 } from '../common/Icons.jsx';
 
 export default function GalleryView({
@@ -27,9 +28,11 @@ export default function GalleryView({
   onAddItem,
   onToggleLaundry,
   onDeleteItem,
+  onEditItem,
   onNavigateToTab,
 }) {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
+  const [editingItem, setEditingItem] = useState(null); // item being edited
 
   // Filter state
   const [categoryFilter, setCategoryFilter] = useState('all'); // 'all' | 'top' | 'bottom' | 'shoes'
@@ -38,6 +41,26 @@ export default function GalleryView({
   const [statusFilter, setStatusFilter] = useState('all'); // 'all' | 'available' | 'in_laundry'
   const [maxPriceFilter, setMaxPriceFilter] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
+
+  // Rotating motivational quotes — one picked per login session
+  const motivationalQuote = (() => {
+    const quotes = [
+      "Wear what makes you feel like yourself.",
+      "Style is a way to say who you are without having to speak.",
+      "Fashion fades, but your personal style is eternal.",
+      "Dress how you want to be addressed.",
+      "The best outfit is the one that makes you feel confident.",
+      "Clothes are the closest thing to who we are.",
+      "Simplicity is the ultimate sophistication in style.",
+    ];
+    const key = 'paradul_quote_index';
+    let idx = parseInt(sessionStorage.getItem(key) ?? '-1', 10);
+    if (idx < 0) {
+      idx = Math.floor(Math.random() * quotes.length);
+      sessionStorage.setItem(key, String(idx));
+    }
+    return quotes[idx % quotes.length];
+  })();
 
   // Extract distinct colors and styles from existing items for dynamic filter options
   const availableColors = useMemo(() => {
@@ -120,181 +143,208 @@ export default function GalleryView({
   };
 
   return (
-    <div className="gallery-view">
-      {/* Top Banner & Action Header */}
-      <section className="view-header">
-        <div>
-          <h1 className="view-title">Digital Wardrobe</h1>
-          <p className="view-subtitle">
+    <div className="gallery-wireframe-view">
+      {/* 1. Hero Motivational Quote Banner */}
+      <section className="quote-hero-card">
+        <div className="quote-hero-left">
+          <h2 className="quote-hero-text">
+            {motivationalQuote}
+          </h2>
+        </div>
+        <div className="quote-hero-right">
+          <img
+            src="/banner.png"
+            alt="Laundry Basket Illustration"
+            className="quote-basket-artwork"
+          />
+        </div>
+      </section>
+
+      {/* Decorative Flourish Divider */}
+      <FlourishDivider className="wireframe-section-sep" />
+
+      {/* 2. Page Title Header & Add Action */}
+      <section className="wireframe-page-heading-row">
+        <div className="heading-title-group">
+          <h1 className="wireframe-main-title">Digital Wardrobe</h1>
+          <p className="wireframe-main-subtitle">
             {clothingItems.length} curated pieces • {filteredItems.length} matching view
           </p>
         </div>
 
-        <div className="view-header-actions">
+        <div className="heading-actions-group">
           <button
             type="button"
-            className="btn-primary-medium"
+            className="btn-wireframe-primary"
             onClick={() => setIsUploadOpen(true)}
           >
-            <IconPlus size={16} />
+            <IconPlus size={15} />
             <span>Add Clothing</span>
           </button>
         </div>
       </section>
 
-      {/* Primary Category Quick-Filter Bar */}
-      <section className="category-tabs-bar" aria-label="Filter by primary category">
+      {/* 3. Category Pills: All | Tops | Bottoms | Shoes */}
+      <section className="wireframe-category-pills-row" aria-label="Filter by clothing category">
         <button
           type="button"
-          className={`category-pill ${categoryFilter === 'all' ? 'active' : ''}`}
+          className={`wireframe-category-pill ${categoryFilter === 'all' ? 'active' : ''}`}
           onClick={() => setCategoryFilter('all')}
         >
-          All Pieces ({clothingItems.length})
+          All
         </button>
         <button
           type="button"
-          className={`category-pill ${categoryFilter === 'top' ? 'active' : ''}`}
+          className={`wireframe-category-pill ${categoryFilter === 'top' ? 'active' : ''}`}
           onClick={() => setCategoryFilter('top')}
         >
-          <IconShirt size={14} />
-          <span>Tops ({clothingItems.filter((i) => i.category === 'top').length})</span>
+          Tops
         </button>
         <button
           type="button"
-          className={`category-pill ${categoryFilter === 'bottom' ? 'active' : ''}`}
+          className={`wireframe-category-pill ${categoryFilter === 'bottom' ? 'active' : ''}`}
           onClick={() => setCategoryFilter('bottom')}
         >
-          <IconPants size={14} />
-          <span>Bottoms ({clothingItems.filter((i) => i.category === 'bottom').length})</span>
+          Bottoms
         </button>
         <button
           type="button"
-          className={`category-pill ${categoryFilter === 'shoes' ? 'active' : ''}`}
+          className={`wireframe-category-pill ${categoryFilter === 'shoes' ? 'active' : ''}`}
           onClick={() => setCategoryFilter('shoes')}
         >
-          <IconShoes size={14} />
-          <span>Shoes ({clothingItems.filter((i) => i.category === 'shoes').length})</span>
+          Shoes
         </button>
       </section>
 
-      {/* Secondary Combinable Filters Bar */}
-      <section className="filters-toolbar">
-        <div className="filters-group-row">
-          {/* Search box */}
-          <div className="filter-input-wrap search-wrap">
-            <input
-              type="text"
-              placeholder="Search by name, color, style..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              aria-label="Search clothing items"
-            />
+      {/* 4. Secondary Filter Toolbar */}
+      <section className="wireframe-filter-toolbar">
+        {/* Search input */}
+        <div className="wireframe-search-field">
+          <IconSearch size={15} className="search-field-icon" />
+          <input
+            type="text"
+            placeholder="SEARCH BY NAME, COLOR, STYLE..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            aria-label="Search clothing items"
+          />
+        </div>
+
+        {/* Dropdowns — order: Status → Color → Style → Max Price */}
+        <div className="wireframe-dropdown-controls">
+          {/* Status */}
+          <div className="wireframe-select-wrap">
+            <span className="select-prefix-label">STATUS:</span>
+            <div className="select-input-container">
+              <select
+                id="filter-status"
+                value={statusFilter}
+                onChange={(e) => setStatusFilter(e.target.value)}
+              >
+                <option value="all">ALL STATUSES</option>
+                <option value="available">CLEAN / AVAILABLE</option>
+                <option value="in_laundry">IN LAUNDRY</option>
+              </select>
+              <IconChevronDown size={13} className="select-arrow-icon" />
+            </div>
           </div>
 
-          {/* Status selector */}
-          <div className="filter-select-wrap">
-            <label htmlFor="filter-status" className="filter-label">Status:</label>
-            <select
-              id="filter-status"
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-            >
-              <option value="all">All Statuses</option>
-              <option value="available">Available</option>
-              <option value="in_laundry">In Laundry</option>
-            </select>
+          {/* Color */}
+          <div className="wireframe-select-wrap">
+            <span className="select-prefix-label">COLOR:</span>
+            <div className="select-input-container">
+              <select
+                id="filter-color"
+                value={colorFilter}
+                onChange={(e) => setColorFilter(e.target.value)}
+              >
+                <option value="all">ALL COLORS</option>
+                {availableColors.map((col) => (
+                  <option key={col} value={col}>
+                    {col.toUpperCase()}
+                  </option>
+                ))}
+              </select>
+              <IconChevronDown size={13} className="select-arrow-icon" />
+            </div>
           </div>
 
-          {/* Color selector */}
-          <div className="filter-select-wrap">
-            <label htmlFor="filter-color" className="filter-label">Color:</label>
-            <select
-              id="filter-color"
-              value={colorFilter}
-              onChange={(e) => setColorFilter(e.target.value)}
-            >
-              <option value="all">All Colors</option>
-              {availableColors.map((col) => (
-                <option key={col} value={col}>
-                  {col}
-                </option>
-              ))}
-            </select>
+          {/* Style */}
+          <div className="wireframe-select-wrap">
+            <span className="select-prefix-label">STYLE:</span>
+            <div className="select-input-container">
+              <select
+                id="filter-style"
+                value={styleFilter}
+                onChange={(e) => setStyleFilter(e.target.value)}
+              >
+                <option value="all">ALL STYLES</option>
+                {availableStyles.map((sty) => (
+                  <option key={sty} value={sty}>
+                    {sty.toUpperCase()}
+                  </option>
+                ))}
+              </select>
+              <IconChevronDown size={13} className="select-arrow-icon" />
+            </div>
           </div>
 
-          {/* Style selector */}
-          <div className="filter-select-wrap">
-            <label htmlFor="filter-style" className="filter-label">Style:</label>
-            <select
-              id="filter-style"
-              value={styleFilter}
-              onChange={(e) => setStyleFilter(e.target.value)}
-            >
-              <option value="all">All Styles</option>
-              {availableStyles.map((sty) => (
-                <option key={sty} value={sty}>
-                  {sty}
-                </option>
-              ))}
-            </select>
+          {/* Max Price */}
+          <div className="wireframe-select-wrap">
+            <span className="select-prefix-label">MAX PRICE:</span>
+            <div className="select-input-container">
+              <select
+                id="filter-price"
+                value={maxPriceFilter}
+                onChange={(e) => setMaxPriceFilter(e.target.value)}
+              >
+                <option value="">ANY PRICE</option>
+                <option value="1000">UP TO ₱1,000</option>
+                <option value="2000">UP TO ₱2,000</option>
+                <option value="3000">UP TO ₱3,000</option>
+              </select>
+              <IconChevronDown size={13} className="select-arrow-icon" />
+            </div>
           </div>
 
-          {/* Price limit filter */}
-          <div className="filter-select-wrap">
-            <label htmlFor="filter-price" className="filter-label">Max Price:</label>
-            <select
-              id="filter-price"
-              value={maxPriceFilter}
-              onChange={(e) => setMaxPriceFilter(e.target.value)}
-            >
-              <option value="">Any Price</option>
-              <option value="1000">Up to ₱1,000</option>
-              <option value="2000">Up to ₱2,000</option>
-              <option value="3000">Up to ₱3,000</option>
-            </select>
-          </div>
-
-          {/* Reset button */}
+          {/* Reset Filters button */}
           {hasActiveFilters && (
             <button
               type="button"
-              className="btn-filter-reset"
+              className="wireframe-filter-reset-btn"
               onClick={resetFilters}
               title="Reset all active filters"
             >
               <IconRefresh size={13} />
-              <span>Reset</span>
+              <span>RESET</span>
             </button>
           )}
         </div>
+
       </section>
 
-      {/* Main Clothing Grid or Empty State */}
+      {/* 5. Main Clothing Grid or Empty State */}
       {filteredItems.length > 0 ? (
-        <div className="clothing-grid">
+        <div className="wireframe-clothing-grid">
           {filteredItems.map((item) => (
             <ClothingCard
               key={item.id}
               item={item}
               onToggleLaundry={onToggleLaundry}
               onDelete={onDeleteItem}
+              onEdit={setEditingItem}
             />
           ))}
         </div>
       ) : clothingItems.length === 0 ? (
-        /* Empty State 1: Wardrobe has no items at all */
         <div className="empty-state-card" role="region" aria-label="Empty wardrobe">
-          <div className="empty-icon-circle">
-            <IconShirt size={38} />
-          </div>
-          <h2 className="empty-state-title">Your wardrobe is empty</h2>
+          <h2 className="empty-state-title">Your digital wardrobe is empty</h2>
           <p className="empty-state-desc">
-            Upload your first clothing item to get started. You can snap real photos
-            and automatically remove the background.
+            Upload your first clothing item to start mixing and matching outfits.
           </p>
           <button
             type="button"
-            className="btn-primary-medium"
+            className="btn-wireframe-primary"
             onClick={() => setIsUploadOpen(true)}
           >
             <IconPlus size={16} />
@@ -302,32 +352,43 @@ export default function GalleryView({
           </button>
         </div>
       ) : (
-        /* Empty State 2: Filters returned 0 results */
         <div className="empty-state-card" role="region" aria-label="No matching clothing items">
           <div className="empty-icon-circle">
             <IconFilter size={32} />
           </div>
           <h2 className="empty-state-title">No items match your filters</h2>
           <p className="empty-state-desc">
-            Try adjusting your category, color, or laundry status filters to see more pieces.
+            Try resetting your category, color, or laundry status filters.
           </p>
           <button
             type="button"
-            className="btn-secondary-medium"
+            className="btn-wireframe-secondary"
             onClick={resetFilters}
           >
             <IconRefresh size={14} />
-            <span>Clear Filters</span>
+            <span>Reset Filters</span>
           </button>
         </div>
       )}
 
-      {/* Upload Dialog */}
+      {/* Upload Modal */}
       <UploadModal
         isOpen={isUploadOpen}
         onClose={() => setIsUploadOpen(false)}
         onSaveItem={onAddItem}
       />
+
+      {/* Edit Clothing Modal */}
+      {editingItem && (
+        <EditClothingModal
+          item={editingItem}
+          onClose={() => setEditingItem(null)}
+          onSave={async (updates) => {
+            if (onEditItem) await onEditItem(editingItem.id, updates);
+            setEditingItem(null);
+          }}
+        />
+      )}
     </div>
   );
 }

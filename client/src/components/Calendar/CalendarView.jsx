@@ -1,18 +1,23 @@
 /**
- * paradu'l — Calendar & Outfit Planner View
+ * paradu'l — Calendar & Outfit Planner View (Wireframe Spec)
  *
- * Implements:
- * - Schedule planner: calendar dates and scheduled events
- * - Clear distinction between "scheduled" (intent) and "worn" (confirmed wear)
- * - Prominent "[ Mark as Worn ]" action which triggers 7-day automatic laundry for Top & Bottom
- * - Add, edit, and delete scheduled calendar events
- * - Filter by status (All, Upcoming Scheduled, Worn History)
+ * Implements the Figma wireframe Calendar specification:
+ * 1. Page Header:
+ *    - Title: "Outfit Planner & Calendar"
+ *    - Subtitle: "X upcoming planned • Y confirmed worn"
+ *    - Right button: "Schedule Outfit"
+ * 2. Category Filter Pills: All Events | Scheduled | Confirmed Worn
+ * 3. Horizontal Event Card Layout:
+ *    - Left: Distinctive rectangular Date Badge (Mauve for Scheduled, Sage for Worn)
+ *      with Month, large Day, Year, and status pill tag
+ *    - Trio of piece photo thumbnails: Top | Bottom | Shoes
+ *    - Event Details: Outfit title and uppercase piece summary
+ *    - Right: "Mark as worn" button (or "Worn Recorded" text) with Edit/Delete square buttons
  */
 
 import { useState, useMemo } from 'react';
 import ScheduleModal from './ScheduleModal.jsx';
 import {
-  IconCalendar,
   IconPlus,
   IconCheck,
   IconEdit,
@@ -20,7 +25,7 @@ import {
   IconShirt,
   IconPants,
   IconShoes,
-  IconLaundry,
+  IconCalendar,
 } from '../common/Icons.jsx';
 
 export default function CalendarView({
@@ -34,7 +39,6 @@ export default function CalendarView({
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState(null);
   const [statusFilter, setStatusFilter] = useState('all'); // 'all' | 'scheduled' | 'worn'
-  const [selectedDate, setSelectedDate] = useState(() => new Date().toISOString().split('T')[0]);
 
   // Lookup maps
   const outfitMap = new Map(outfits.map((o) => [String(o.id), o]));
@@ -64,71 +68,57 @@ export default function CalendarView({
   };
 
   return (
-    <div className="calendar-view">
-      {/* Header bar */}
-      <section className="view-header">
-        <div>
-          <h1 className="view-title">Outfit Planner & Calendar</h1>
-          <p className="view-subtitle">
+    <div className="calendar-wireframe-view">
+      {/* 1. Header with Title & Action */}
+      <section className="wireframe-page-heading-row">
+        <div className="heading-title-group">
+          <h1 className="wireframe-main-title">Outfit Planner & Calendar</h1>
+          <p className="wireframe-main-subtitle">
             {scheduledCount} upcoming planned • {wornCount} confirmed worn
           </p>
         </div>
 
-        <div className="view-header-actions">
+        <div className="heading-actions-group">
           <button
             type="button"
-            className="btn-primary-medium"
+            className="btn-wireframe-primary"
             onClick={handleOpenAdd}
             disabled={outfits.length === 0}
-            title={outfits.length === 0 ? 'Create an outfit first before scheduling' : 'Schedule Outfit'}
+            title={outfits.length === 0 ? 'Create an outfit first in Outfit Manager' : 'Schedule Outfit'}
           >
-            <IconPlus size={16} />
             <span>Schedule Outfit</span>
           </button>
         </div>
       </section>
 
-      {/* Distinction Explanation Banner */}
-      <section className="calendar-concept-banner">
-        <div className="concept-pill scheduled-pill">
-          <strong>Scheduled</strong> = Planning what to wear
-        </div>
-        <span className="concept-arrow">➔</span>
-        <div className="concept-pill worn-pill">
-          <strong>Worn</strong> = Confirmed worn (automatically triggers 7-day laundry for tops & bottoms)
-        </div>
-      </section>
-
-      {/* Filter Tabs */}
-      <section className="category-tabs-bar" aria-label="Filter calendar events">
+      {/* 2. Filter Pills: All Events | Scheduled | Confirmed Worn */}
+      <section className="wireframe-category-pills-row" aria-label="Filter calendar events">
         <button
           type="button"
-          className={`category-pill ${statusFilter === 'all' ? 'active' : ''}`}
+          className={`wireframe-category-pill ${statusFilter === 'all' ? 'active' : ''}`}
           onClick={() => setStatusFilter('all')}
         >
-          All Events ({schedules.length})
+          All Events
         </button>
         <button
           type="button"
-          className={`category-pill ${statusFilter === 'scheduled' ? 'active' : ''}`}
+          className={`wireframe-category-pill ${statusFilter === 'scheduled' ? 'active' : ''}`}
           onClick={() => setStatusFilter('scheduled')}
         >
-          <IconCalendar size={14} />
-          <span>Scheduled ({scheduledCount})</span>
+          Scheduled
         </button>
         <button
           type="button"
-          className={`category-pill ${statusFilter === 'worn' ? 'active' : ''}`}
+          className={`wireframe-category-pill ${statusFilter === 'worn' ? 'active' : ''}`}
           onClick={() => setStatusFilter('worn')}
         >
-          <IconCheck size={14} />
-          <span>Confirmed Worn ({wornCount})</span>
+          Confirmed Worn
         </button>
       </section>
 
-      {/* Events List */}
+      {/* 3. Horizontal Schedule Event Cards List */}
       {filteredSchedules.length > 0 ? (
-        <div className="schedule-events-list">
+        <div className="wireframe-calendar-events-list">
           {filteredSchedules.map((schedule) => {
             const outfit = outfitMap.get(String(schedule.outfitId));
             const topItem = outfit ? clothingMap.get(String(outfit.topId)) : null;
@@ -136,98 +126,105 @@ export default function CalendarView({
             const shoesItem = outfit ? clothingMap.get(String(outfit.shoesId)) : null;
             const isWorn = schedule.status === 'worn';
 
+            // Uppercase piece names summary
+            const piecesSummary = [
+              topItem?.name || 'TOP',
+              bottomItem?.name || 'BOTTOM',
+              shoesItem?.name || 'SHOES',
+            ]
+              .join(' • ')
+              .toUpperCase();
+
             return (
               <article
                 key={schedule.id}
-                className={`schedule-card ${isWorn ? 'is-worn-card' : 'is-scheduled-card'}`}
+                className={`wireframe-calendar-card ${isWorn ? 'is-worn' : 'is-scheduled'}`}
               >
-                {/* Date indicator block */}
-                <div className="schedule-date-block">
-                  <span className="date-month">
-                    {formatMonth(schedule.date)}
-                  </span>
-                  <span className="date-day">
-                    {formatDay(schedule.date)}
-                  </span>
-                  <span className="date-year">{formatYear(schedule.date)}</span>
-                  <span className={`status-pill ${isWorn ? 'status-worn' : 'status-scheduled'}`}>
+                {/* Left Date Block */}
+                <div className={`wireframe-date-badge ${isWorn ? 'badge-worn' : 'badge-scheduled'}`}>
+                  <span className="badge-month">{formatMonth(schedule.date)}</span>
+                  <span className="badge-day">{formatDay(schedule.date)}</span>
+                  <span className="badge-year">{formatYear(schedule.date)}</span>
+                  <span className="badge-status-pill">
                     {isWorn ? 'Worn' : 'Scheduled'}
                   </span>
                 </div>
 
-                {/* Outfit preview thumbnail trio */}
-                <div className="schedule-outfit-preview">
-                  <div className="mini-tier" title={`Top: ${topItem?.name || ''}`}>
+                {/* 3 Piece Thumbnail Frames */}
+                <div className="calendar-outfit-trio-thumbnails">
+                  <div className="mini-thumbnail-box" title={`Top: ${topItem?.name || 'Top'}`}>
                     <div className="transparency-checkered-canvas" />
-                    {topItem ? <img src={topItem.imageUrl} alt="" /> : <IconShirt size={14} />}
-                  </div>
-                  <div className="mini-tier" title={`Bottom: ${bottomItem?.name || ''}`}>
-                    <div className="transparency-checkered-canvas" />
-                    {bottomItem ? <img src={bottomItem.imageUrl} alt="" /> : <IconPants size={14} />}
-                  </div>
-                  <div className="mini-tier" title={`Shoes: ${shoesItem?.name || ''}`}>
-                    <div className="transparency-checkered-canvas" />
-                    {shoesItem ? <img src={shoesItem.imageUrl} alt="" /> : <IconShoes size={14} />}
-                  </div>
-                </div>
-
-                {/* Event Information */}
-                <div className="schedule-details">
-                  <div className="schedule-name-row">
-                    <h3 className="schedule-outfit-title">
-                      {outfit?.name || 'Outfit not found'}
-                    </h3>
-                    {schedule.occasion && (
-                      <span className="schedule-occasion-tag">{schedule.occasion}</span>
+                    {topItem ? (
+                      <img src={topItem.imageUrl} alt="" className="mini-thumbnail-img" />
+                    ) : (
+                      <IconShirt size={16} />
                     )}
                   </div>
 
-                  <p className="schedule-pieces-summary">
-                    {topItem?.name || 'Top'} • {bottomItem?.name || 'Bottom'} • {shoesItem?.name || 'Shoes'}
-                  </p>
+                  <div className="mini-thumbnail-box" title={`Bottom: ${bottomItem?.name || 'Bottom'}`}>
+                    <div className="transparency-checkered-canvas" />
+                    {bottomItem ? (
+                      <img src={bottomItem.imageUrl} alt="" className="mini-thumbnail-img" />
+                    ) : (
+                      <IconPants size={16} />
+                    )}
+                  </div>
 
-                  {schedule.notes && <p className="schedule-notes">{schedule.notes}</p>}
+                  <div className="mini-thumbnail-box" title={`Shoes: ${shoesItem?.name || 'Shoes'}`}>
+                    <div className="transparency-checkered-canvas" />
+                    {shoesItem ? (
+                      <img src={shoesItem.imageUrl} alt="" className="mini-thumbnail-img" />
+                    ) : (
+                      <IconShoes size={16} />
+                    )}
+                  </div>
+                </div>
 
-                  {isWorn && (
-                    <div className="wear-confirmed-notice">
-                      <IconCheck size={13} />
-                      <span>Wear recorded for Analytics • Top and Bottom entered 7-day laundry</span>
-                    </div>
+                {/* Details */}
+                <div className="calendar-event-details">
+                  <h3 className="calendar-event-outfit-title">
+                    {outfit?.name || 'Custom Outfit'}
+                  </h3>
+                  <p className="calendar-pieces-summary">{piecesSummary}</p>
+                  {schedule.occasion && (
+                    <span className="calendar-occasion-tag">{schedule.occasion}</span>
+                  )}
+                  {schedule.notes && (
+                    <p className="calendar-event-notes">{schedule.notes}</p>
                   )}
                 </div>
 
-                {/* Action buttons */}
-                <div className="schedule-actions-column">
+                {/* Right Actions */}
+                <div className="calendar-card-right-actions">
                   {!isWorn ? (
                     <button
                       type="button"
-                      className="btn-mark-worn"
+                      className="btn-wireframe-mark-worn"
                       onClick={() => onMarkWorn(schedule.id)}
-                      title="Confirm you wore this outfit today. Top and Bottom will enter 7-day laundry."
+                      title="Confirm wear: changes status to Worn and places Top & Bottom into 7-day laundry"
                     >
-                      <IconCheck size={15} />
-                      <span>Mark as Worn</span>
+                      <span>Mark as worn</span>
                     </button>
                   ) : (
-                    <span className="worn-confirmed-badge">
-                      <IconCheck size={14} />
-                      <span>Worn Recorded</span>
+                    <span className="calendar-worn-recorded-label">
+                      Worn Recorded
                     </span>
                   )}
 
-                  <div className="schedule-aux-buttons">
+                  <div className="calendar-aux-buttons-group">
                     <button
                       type="button"
-                      className="btn-action-icon"
+                      className="btn-wireframe-icon-square"
                       onClick={() => handleOpenEdit(schedule)}
                       title="Edit schedule details"
                       aria-label="Edit schedule"
                     >
                       <IconEdit size={14} />
                     </button>
+
                     <button
                       type="button"
-                      className="btn-action-icon danger"
+                      className="btn-wireframe-icon-square danger"
                       onClick={() => onDeleteSchedule(schedule.id)}
                       title="Remove from calendar"
                       aria-label="Delete schedule"
@@ -247,17 +244,17 @@ export default function CalendarView({
           </div>
           <h2 className="empty-state-title">No outfits scheduled</h2>
           <p className="empty-state-desc">
-            Schedule an outfit to plan your week ahead. Once worn, click "Mark as Worn"
-            to track real clothing usage in your analytics.
+            Plan your outfits ahead on your calendar. Once worn, click "Mark as worn"
+            to automatically record usage in your Wardrobe Analytics.
           </p>
           {outfits.length > 0 ? (
             <button
               type="button"
-              className="btn-primary-medium"
+              className="btn-wireframe-primary"
               onClick={handleOpenAdd}
             >
               <IconPlus size={16} />
-              <span>Schedule an Outfit</span>
+              <span>Schedule Outfit</span>
             </button>
           ) : (
             <p className="empty-sub-hint">
@@ -283,9 +280,9 @@ export default function CalendarView({
 function formatMonth(dateStr) {
   try {
     const d = new Date(dateStr + 'T00:00:00');
-    return d.toLocaleDateString('en-US', { month: 'short' }).toUpperCase();
+    return d.toLocaleDateString('en-US', { month: 'short' });
   } catch {
-    return 'DATE';
+    return 'Month';
   }
 }
 
@@ -294,7 +291,7 @@ function formatDay(dateStr) {
     const d = new Date(dateStr + 'T00:00:00');
     return d.getDate();
   } catch {
-    return '01';
+    return '8';
   }
 }
 
@@ -303,6 +300,6 @@ function formatYear(dateStr) {
     const d = new Date(dateStr + 'T00:00:00');
     return d.getFullYear();
   } catch {
-    return '2026';
+    return 'Year';
   }
 }

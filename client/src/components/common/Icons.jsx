@@ -186,3 +186,63 @@ export function IconEye({ size = 18, className = '' }) {
     </svg>
   );
 }
+
+export function IconHeart({ size = 18, className = '', filled = false }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill={filled ? 'currentColor' : 'none'} stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+    </svg>
+  );
+}
+
+export function IconPalette({ size = 18, className = '' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <circle cx="13.5" cy="6.5" r=".5" fill="currentColor" />
+      <circle cx="17.5" cy="10.5" r=".5" fill="currentColor" />
+      <circle cx="8.5" cy="7.5" r=".5" fill="currentColor" />
+      <circle cx="6.5" cy="12.5" r=".5" fill="currentColor" />
+      <path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.992 6.012 17.461 2 12 2z" />
+    </svg>
+  );
+}
+
+export function IconSearch({ size = 18, className = '' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <circle cx="11" cy="11" r="8" />
+      <line x1="21" y1="21" x2="16.65" y2="16.65" />
+    </svg>
+  );
+}
+
+export function IconChevronDown({ size = 16, className = '' }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">
+      <polyline points="6 9 12 15 18 9" />
+    </svg>
+  );
+}
+
+export function FlourishDivider({ className = '' }) {
+  return (
+    <div className={`flourish-divider ${className}`} aria-hidden="true">
+      <span className="flourish-line" />
+      <span className="flourish-icon">
+        <svg width="64" height="18" viewBox="0 0 64 18" fill="none">
+          {/* Left diamond */}
+          <path d="M10 9L15 4L20 9L15 14Z" stroke="#7E6E98" strokeWidth="1.2" fill="none" />
+          {/* Center 4-petal rosette */}
+          <circle cx="29.5" cy="6.5" r="2.2" stroke="#7E6E98" strokeWidth="1.2" fill="none" />
+          <circle cx="34.5" cy="6.5" r="2.2" stroke="#7E6E98" strokeWidth="1.2" fill="none" />
+          <circle cx="29.5" cy="11.5" r="2.2" stroke="#7E6E98" strokeWidth="1.2" fill="none" />
+          <circle cx="34.5" cy="11.5" r="2.2" stroke="#7E6E98" strokeWidth="1.2" fill="none" />
+          <circle cx="32" cy="9" r="1.3" fill="#7E6E98" />
+          {/* Right diamond */}
+          <path d="M44 9L49 4L54 9L49 14Z" stroke="#7E6E98" strokeWidth="1.2" fill="none" />
+        </svg>
+      </span>
+      <span className="flourish-line" />
+    </div>
+  );
+}

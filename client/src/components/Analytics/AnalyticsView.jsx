@@ -1,13 +1,13 @@
 /**
- * paradu'l — Wardrobe Analytics & Style Insights View
+ * paradu'l — Wardrobe Analytics & Style Insights View (Wireframe Spec)
  *
- * Displays:
- * 1. Top 3 Most Used Clothing (strictly derived from confirmed wear logs)
- * 2. Most Used Outfit (or "No outfit usage data yet.")
- * 3. Most Used Color in worn outfits
- * 4. Total Wardrobe Value (sum of active clothing prices in ₱, counted once)
- * 5. Category distribution and laundry status breakdown
- * 6. Historical wear logs table
+ * Implements the Figma wireframe Analytics specification:
+ * 1. View Header: "Wardrobe Analytics" + subtitle
+ * 2. 3 KPI cards: Total Wardrobe Value, Most Used Outfit, Most Used Color
+ * 3. Laundry & Availability card
+ * 4. Category Distribution with progress bars
+ * 5. Recent Wear Logs section
+ * 6. Top 3 Most Used Clothing section — cards show rank badge (#1, #2, #3)
  */
 
 import { useMemo } from 'react';
@@ -19,15 +19,12 @@ import {
   getCategoryBreakdown,
   getLaundryBreakdown,
 } from '../../services/analyticsService.js';
-import { CategoryBadge } from '../common/Badge.jsx';
+import ClothingCard from '../Gallery/ClothingCard.jsx';
 import {
-  IconAnalytics,
-  IconShirt,
-  IconHanger,
   IconTag,
-  IconCheck,
-  IconCalendar,
-  IconLaundry,
+  IconHanger,
+  IconPalette,
+  IconShirt,
 } from '../common/Icons.jsx';
 
 export default function AnalyticsView({
@@ -57,292 +54,252 @@ export default function AnalyticsView({
     [clothingItems]
   );
 
-  const categoryCounts = useMemo(
+  const categoryBreakdown = useMemo(
     () => getCategoryBreakdown(clothingItems),
     [clothingItems]
   );
 
-  const laundryCounts = useMemo(
+  const laundryBreakdown = useMemo(
     () => getLaundryBreakdown(clothingItems),
     [clothingItems]
   );
 
-  const outfitMap = useMemo(
-    () => new Map(outfits.map((o) => [String(o.id), o])),
-    [outfits]
-  );
+  const total = clothingItems.length;
+  const availabilityPct = total > 0
+    ? Math.round((laundryBreakdown.available / total) * 100)
+    : 0;
 
-  const hasWearData = wearRecords.length > 0;
+  // Recent 5 wear records, newest first
+  const recentWears = useMemo(() => {
+    const outfitMap = new Map(outfits.map((o) => [String(o.id), o]));
+    return [...wearRecords]
+      .sort((a, b) => new Date(b.wornDate || b.createdAt) - new Date(a.wornDate || a.createdAt))
+      .slice(0, 5)
+      .map((rec) => ({
+        ...rec,
+        outfit: outfitMap.get(String(rec.outfitId)) || null,
+      }));
+  }, [wearRecords, outfits]);
 
   return (
-    <div className="analytics-view">
-      {/* View Header */}
-      <section className="view-header">
-        <div>
-          <h1 className="view-title">Wardrobe Analytics</h1>
-          <p className="view-subtitle">
+    <div className="analytics-wireframe-view">
+      {/* 1. View Header */}
+      <section className="wireframe-page-heading-row">
+        <div className="heading-title-group">
+          <h1 className="wireframe-main-title">Wardrobe Analytics</h1>
+          <p className="wireframe-main-subtitle">
             Data insights derived from {wearRecords.length} recorded wear {wearRecords.length === 1 ? 'event' : 'events'} across {clothingItems.length} clothing items
           </p>
         </div>
       </section>
 
-      {/* Top 4 Key Metric Cards Grid */}
-      <section className="analytics-metrics-grid">
-        {/* Metric 1: Total Wardrobe Value (Requirement #39) */}
-        <div className="metric-card">
-          <div className="metric-header">
-            <span className="metric-label">Total Wardrobe Value</span>
-            <div className="metric-icon-wrap">
-              <IconTag size={16} />
+      {/* 2. Top 3 Metric Summary Cards */}
+      <section className="wireframe-metrics-triad-grid">
+        {/* Metric 1: Total Wardrobe Value */}
+        <div className="wireframe-kpi-card">
+          <div className="kpi-card-header">
+            <span className="kpi-title-label">Total Wardrobe Value</span>
+            <div className="kpi-icon-wrap" aria-hidden="true">
+              <IconTag size={18} />
             </div>
           </div>
-          <div className="metric-main-value">
+          <div className="kpi-main-number">
             ₱{totalValue.toLocaleString()}
           </div>
-          <p className="metric-caption">
-            Sum of all {clothingItems.length} active clothing items counted exactly once.
+          <p className="kpi-bottom-caption">
+            SUM OF ALL {clothingItems.length} ACTIVE CLOTHING ITEMS COUNTED EXACTLY ONCE.
           </p>
         </div>
 
-        {/* Metric 2: Top Outfit (Requirement #37) */}
-        <div className="metric-card">
-          <div className="metric-header">
-            <span className="metric-label">Most Used Outfit</span>
-            <div className="metric-icon-wrap">
-              <IconHanger size={16} />
+        {/* Metric 2: Most Used Outfit */}
+        <div className="wireframe-kpi-card">
+          <div className="kpi-card-header">
+            <span className="kpi-title-label">Most Used Outfit</span>
+            <div className="kpi-icon-wrap" aria-hidden="true">
+              <IconHanger size={18} />
             </div>
           </div>
           {topOutfitData ? (
             <>
-              <div className="metric-main-value truncate" title={topOutfitData.outfit.name}>
+              <div className="kpi-main-number truncate" title={topOutfitData.outfit.name}>
                 {topOutfitData.outfit.name}
               </div>
-              <p className="metric-caption highlight-caption">
-                <strong>{topOutfitData.wearCount}</strong> confirmed {topOutfitData.wearCount === 1 ? 'wear' : 'wears'}
-                {topOutfitData.outfit.style ? ` • ${topOutfitData.outfit.style}` : ''}
+              <p className="kpi-bottom-caption">
+                {topOutfitData.wearCount} CONFIRMED {topOutfitData.wearCount === 1 ? 'WEAR' : 'WEARS'}
+                {topOutfitData.outfit.style ? ` • ${topOutfitData.outfit.style.toUpperCase()}` : ''}
               </p>
             </>
           ) : (
             <>
-              <div className="metric-empty-text">No outfit usage data yet.</div>
-              <p className="metric-caption">
-                Mark outfits as worn in the Calendar to start tracking wear patterns.
+              <div className="kpi-main-number kpi-empty-text">No outfit worn yet</div>
+              <p className="kpi-bottom-caption">
+                CONFIRM WEAR ON CALENDAR TO TRACK OUTFIT USAGE
               </p>
             </>
           )}
         </div>
 
-        {/* Metric 3: Top Color (Requirement #38) */}
-        <div className="metric-card">
-          <div className="metric-header">
-            <span className="metric-label">Most Used Color</span>
-            <div className="metric-icon-wrap">
-              <IconShirt size={16} />
+        {/* Metric 3: Most Used Color */}
+        <div className="wireframe-kpi-card">
+          <div className="kpi-card-header">
+            <span className="kpi-title-label">
+              Most Used<br />Color
+            </span>
+            <div className="kpi-icon-wrap" aria-hidden="true">
+              <IconPalette size={18} />
             </div>
           </div>
           {topColorData ? (
             <>
-              <div className="metric-color-row">
-                <span
-                  className="metric-color-dot"
-                  style={{
-                    backgroundColor: getColorHex(topColorData.color),
-                    border: topColorData.color?.toLowerCase() === 'white' ? '1px solid #d4d4d8' : 'none',
-                  }}
-                  aria-hidden="true"
-                />
-                <span className="metric-main-value">{topColorData.color}</span>
+              <div className="kpi-main-number">
+                {topColorData.color}
               </div>
-              <p className="metric-caption highlight-caption">
-                <strong>{topColorData.count}</strong> appearances across confirmed outfits
+              <p className="kpi-bottom-caption">
+                {topColorData.count} APPEARANCES ACROSS CONFIRMED OUTFITS
               </p>
             </>
           ) : (
             <>
-              <div className="metric-empty-text">No color data yet.</div>
-              <p className="metric-caption">Calculated from confirmed worn outfits.</p>
+              <div className="kpi-main-number kpi-empty-text">No color data yet</div>
+              <p className="kpi-bottom-caption">
+                CALCULATED FROM CONFIRMED WORN OUTFITS
+              </p>
             </>
           )}
         </div>
-
-        {/* Metric 4: Closet Availability */}
-        <div className="metric-card">
-          <div className="metric-header">
-            <span className="metric-label">Laundry & Availability</span>
-            <div className="metric-icon-wrap">
-              <IconLaundry size={16} />
-            </div>
-          </div>
-          <div className="metric-main-value">
-            {laundryCounts.available} Clean / {laundryCounts.inLaundry} Laundry
-          </div>
-          <p className="metric-caption">
-            {clothingItems.length > 0
-              ? `${Math.round((laundryCounts.available / clothingItems.length) * 100)}% of wardrobe ready to wear`
-              : 'Add items to view availability'}
-          </p>
-        </div>
       </section>
 
-      {/* Main Section: Top 3 Most Used Clothing (Requirement #36) */}
-      <section className="analytics-section-card">
-        <div className="section-card-header">
-          <div>
-            <h2 className="section-title">Top 3 Most Used Clothing</h2>
-            <p className="section-subtitle">
-              Strictly counted from actual worn-outfit records (saved outfits do not count)
-            </p>
+      {/* 3. Laundry & Availability + Category Distribution — side by side */}
+      <section className="analytics-dual-section">
+        {/* Laundry & Availability */}
+        <div className="analytics-section-card laundry-availability-card">
+          <h2 className="analytics-section-title">Laundry &amp; Availability</h2>
+          <p className="analytics-section-subtitle">CURRENT WARDROBE READINESS AT A GLANCE</p>
+
+          <div className="laundry-stats-row">
+            <div className="laundry-stat-block clean">
+              <span className="laundry-stat-number">{laundryBreakdown.available}</span>
+              <span className="laundry-stat-label">Clean &amp; Available</span>
+            </div>
+            <div className="laundry-stat-divider" />
+            <div className="laundry-stat-block dirty">
+              <span className="laundry-stat-number">{laundryBreakdown.inLaundry}</span>
+              <span className="laundry-stat-label">In Laundry</span>
+            </div>
+          </div>
+
+          <div className="laundry-availability-bar-wrap">
+            <div className="laundry-availability-bar-track">
+              <div
+                className="laundry-availability-bar-fill"
+                style={{ width: `${availabilityPct}%` }}
+                aria-label={`${availabilityPct}% available`}
+              />
+            </div>
+            <span className="laundry-bar-pct">{availabilityPct}% ready to wear</span>
           </div>
         </div>
 
-        {topClothing.length > 0 ? (
-          <div className="top-clothing-podium">
-            {topClothing.map(({ item, wearCount }, index) => {
-              const rankLabel = `#${index + 1}`;
+        {/* Category Distribution */}
+        <div className="analytics-section-card category-dist-card">
+          <h2 className="analytics-section-title">Category Distribution</h2>
+          <p className="analytics-section-subtitle">BREAKDOWN OF YOUR WARDROBE BY PIECE TYPE</p>
+
+          <div className="category-dist-list">
+            {[
+              { key: 'top', label: 'Tops' },
+              { key: 'bottom', label: 'Bottoms' },
+              { key: 'shoes', label: 'Shoes' },
+            ].map(({ key, label }) => {
+              const count = categoryBreakdown[key] || 0;
+              const pct = total > 0 ? Math.round((count / total) * 100) : 0;
               return (
-                <article key={item.id} className="podium-card">
-                  <span className={`podium-rank-badge rank-${index + 1}`}>
-                    {rankLabel}
-                  </span>
-
-                  <div className="podium-image-frame">
-                    <div className="transparency-checkered-canvas" />
-                    <img src={item.imageUrl} alt={item.name} className="podium-img" />
+                <div key={key} className="category-dist-row">
+                  <div className="cat-dist-label-row">
+                    <span className="cat-dist-name">{label}</span>
+                    <span className="cat-dist-count">{count} items · {pct}%</span>
                   </div>
-
-                  <div className="podium-info">
-                    <h3 className="podium-item-name" title={item.name}>
-                      {item.name}
-                    </h3>
-                    <div className="podium-meta">
-                      <CategoryBadge category={item.category} size="xs" />
-                      <span className="podium-color">{item.color}</span>
-                    </div>
-
-                    <div className="podium-wear-banner">
-                      <span className="podium-count-num">{wearCount}</span>
-                      <span className="podium-count-text">
-                        {wearCount === 1 ? 'wear' : 'wears'}
-                      </span>
-                    </div>
+                  <div className="cat-dist-bar-track">
+                    <div
+                      className={`cat-dist-bar-fill cat-${key}`}
+                      style={{ width: `${pct}%` }}
+                    />
                   </div>
-                </article>
+                </div>
               );
             })}
           </div>
+        </div>
+      </section>
+
+      {/* 4. Top 3 Most Used Clothing */}
+      <section className="wireframe-podium-section-card">
+        <div className="podium-section-header">
+          <h2 className="podium-section-title">Top 3 Most Used Clothing</h2>
+          <p className="podium-section-subtitle">
+            STRICTLY COUNTED FROM ACTUAL WORN-OUTFIT RECORDS (SAVED OUTFITS DO NOT COUNT)
+          </p>
+        </div>
+
+        {topClothing.length > 0 ? (
+          <div className="podium-clothing-grid">
+            {topClothing.map(({ item, wearCount }, index) => (
+              <ClothingCard
+                key={item.id}
+                item={item}
+                wearCount={wearCount}
+                rank={index + 1}
+              />
+            ))}
+          </div>
         ) : (
           <div className="analytics-empty-panel">
-            <IconShirt size={30} />
-            <p>Your insights will appear here once you start wearing and recording outfits.</p>
+            <IconShirt size={34} />
+            <p>Your top clothing insights will appear here once you start wearing outfits.</p>
             <p className="empty-subtext">
-              Go to the Calendar and click "[ Mark as Worn ]" on any scheduled look to record wear counts.
+              Go to the Calendar and click "[ Mark as worn ]" on any scheduled look to record wear counts.
             </p>
           </div>
         )}
       </section>
 
-      {/* Category Breakdown & Wardrobe Distribution */}
-      <section className="analytics-two-col-grid">
-        <div className="analytics-section-card">
-          <h2 className="section-title">Category Distribution</h2>
-          <p className="section-subtitle">Inventory breakdown across primary pieces</p>
+      {/* 5. Recent Wear Logs */}
+      <section className="analytics-section-card recent-wearlogs-card">
+        <h2 className="analytics-section-title">Recent Wear Logs</h2>
+        <p className="analytics-section-subtitle">LAST 5 CONFIRMED OUTFIT WEARS</p>
 
-          <div className="category-progress-list">
-            <div className="progress-item">
-              <div className="progress-label-row">
-                <span>Tops</span>
-                <strong>{categoryCounts.top} items</strong>
-              </div>
-              <div className="progress-track">
-                <div
-                  className="progress-fill fill-top"
-                  style={{
-                    width: `${categoryCounts.total ? (categoryCounts.top / categoryCounts.total) * 100 : 0}%`,
-                  }}
-                />
-              </div>
-            </div>
-
-            <div className="progress-item">
-              <div className="progress-label-row">
-                <span>Bottoms</span>
-                <strong>{categoryCounts.bottom} items</strong>
-              </div>
-              <div className="progress-track">
-                <div
-                  className="progress-fill fill-bottom"
-                  style={{
-                    width: `${categoryCounts.total ? (categoryCounts.bottom / categoryCounts.total) * 100 : 0}%`,
-                  }}
-                />
-              </div>
-            </div>
-
-            <div className="progress-item">
-              <div className="progress-label-row">
-                <span>Shoes</span>
-                <strong>{categoryCounts.shoes} items</strong>
-              </div>
-              <div className="progress-track">
-                <div
-                  className="progress-fill fill-shoes"
-                  style={{
-                    width: `${categoryCounts.total ? (categoryCounts.shoes / categoryCounts.total) * 100 : 0}%`,
-                  }}
-                />
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* Confirmed Wear History Log */}
-        <div className="analytics-section-card">
-          <h2 className="section-title">Recent Wear Logs</h2>
-          <p className="section-subtitle">Chronological record of verified outfit wears</p>
-
-          {wearRecords.length > 0 ? (
-            <ul className="wear-log-list">
-              {wearRecords.slice(0, 5).map((record) => {
-                const outfit = outfitMap.get(String(record.outfitId));
+        {recentWears.length > 0 ? (
+          <table className="wear-logs-table">
+            <thead>
+              <tr>
+                <th>Date</th>
+                <th>Outfit</th>
+                <th>Style</th>
+              </tr>
+            </thead>
+            <tbody>
+              {recentWears.map((rec, i) => {
+                const dateStr = rec.wornDate
+                  ? new Date(rec.wornDate).toLocaleDateString('en-PH', {
+                      year: 'numeric', month: 'short', day: 'numeric',
+                    })
+                  : '—';
                 return (
-                  <li key={record.id} className="wear-log-row">
-                    <div className="wear-log-date">
-                      <IconCalendar size={13} />
-                      <span>{record.wornDate}</span>
-                    </div>
-                    <div className="wear-log-outfit-name">
-                      {outfit?.name || 'Custom Outfit'}
-                    </div>
-                    <span className="wear-verified-badge">
-                      <IconCheck size={11} /> Verified
-                    </span>
-                  </li>
+                  <tr key={rec.id || i}>
+                    <td className="wear-log-date">{dateStr}</td>
+                    <td className="wear-log-outfit">{rec.outfit?.name || '—'}</td>
+                    <td className="wear-log-style">{rec.outfit?.style || '—'}</td>
+                  </tr>
                 );
               })}
-            </ul>
-          ) : (
-            <p className="muted-notice">No wear logs recorded yet.</p>
-          )}
-        </div>
+            </tbody>
+          </table>
+        ) : (
+          <div className="analytics-empty-panel">
+            <p>No wear records yet. Mark outfits as worn via the Calendar tab.</p>
+          </div>
+        )}
       </section>
     </div>
   );
-}
-
-function getColorHex(colorName = '') {
-  const map = {
-    white: '#fcfcfd',
-    black: '#18181b',
-    navy: '#1e293b',
-    blue: '#3b82f6',
-    beige: '#e7dfd5',
-    brown: '#78350f',
-    grey: '#71717a',
-    red: '#ef4444',
-    green: '#22c55e',
-    olive: '#65a30d',
-    pink: '#ec4899',
-    yellow: '#eab308',
-  };
-  return map[colorName.toLowerCase()] || '#a1a1aa';
 }

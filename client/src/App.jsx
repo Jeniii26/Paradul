@@ -195,6 +195,20 @@ export default function App() {
     }
   };
 
+  const handleEditClothing = async (id, updates) => {
+    try {
+      const updated = await updateClothing(id, updates);
+      setClothingItems((prev) =>
+        prev.map((c) => (String(c.id) === String(updated.id) ? updated : c))
+      );
+      showToast(`"${updated.name}" updated successfully!`);
+    } catch (err) {
+      showToast(`Error updating item: ${err.message}`);
+      throw err; // re-throw so modal can show error
+    }
+  };
+
+
   // ==========================================================================
   // OUTFIT MANAGER HANDLERS
   // ==========================================================================
@@ -329,6 +343,7 @@ export default function App() {
                 onAddItem={handleAddClothing}
                 onToggleLaundry={handleToggleLaundry}
                 onDeleteItem={handleDeleteClothing}
+                onEditItem={handleEditClothing}
                 onNavigateToTab={setActiveTab}
               />
             )}

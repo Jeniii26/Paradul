@@ -26,6 +26,7 @@ export default function OutfitCreatorModal({
   clothingItems,
   onSaveOutfit,
   editingOutfit = null,
+  startWithRandom = false,
 }) {
   const [selectedTopId, setSelectedTopId] = useState('');
   const [selectedBottomId, setSelectedBottomId] = useState('');
@@ -76,16 +77,29 @@ export default function OutfitCreatorModal({
       setNotes(editingOutfit.notes || '');
       setValidationError('');
     } else {
-      setSelectedTopId('');
-      setSelectedBottomId('');
-      setSelectedShoesId('');
-      setName('');
-      setStyle('Casual');
-      setColorTheme('');
-      setNotes('');
       setValidationError('');
+      if (startWithRandom && availableTops.length > 0 && availableBottoms.length > 0 && availableShoes.length > 0) {
+        const randomTop = availableTops[Math.floor(Math.random() * availableTops.length)];
+        const randomBottom = availableBottoms[Math.floor(Math.random() * availableBottoms.length)];
+        const randomShoes = availableShoes[Math.floor(Math.random() * availableShoes.length)];
+        setSelectedTopId(randomTop.id);
+        setSelectedBottomId(randomBottom.id);
+        setSelectedShoesId(randomShoes.id);
+        setName(`Daily ${randomTop.color} & ${randomBottom.color} Fit`);
+        setStyle(randomTop.style || 'Casual');
+        setColorTheme(`${randomTop.color} / ${randomBottom.color}`);
+        setNotes('');
+      } else {
+        setSelectedTopId('');
+        setSelectedBottomId('');
+        setSelectedShoesId('');
+        setName('');
+        setStyle('Casual');
+        setColorTheme('');
+        setNotes('');
+      }
     }
-  }, [editingOutfit, isOpen]);
+  }, [editingOutfit, isOpen, startWithRandom, availableTops, availableBottoms, availableShoes]);
 
   // Selected item objects for live preview
   const currentTop = tops.find((i) => String(i.id) === String(selectedTopId));
