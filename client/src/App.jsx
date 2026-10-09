@@ -340,6 +340,8 @@ export default function App() {
             {activeTab === 'gallery' && (
               <GalleryView
                 clothingItems={clothingItems}
+                outfits={outfits}
+                wearRecords={wearRecords}
                 onAddItem={handleAddClothing}
                 onToggleLaundry={handleToggleLaundry}
                 onDeleteItem={handleDeleteClothing}

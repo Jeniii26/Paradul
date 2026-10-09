@@ -169,7 +169,38 @@ export default function AnalyticsView({
         </div>
       </section>
 
-      {/* 3. Laundry & Availability + Category Distribution — side by side */}
+      {/* 3. Top 3 Most Used Clothing */}
+      <section className="wireframe-podium-section-card">
+        <div className="podium-section-header">
+          <h2 className="podium-section-title">Top 3 Most Used Clothing</h2>
+          <p className="podium-section-subtitle">
+            STRICTLY COUNTED FROM ACTUAL WORN-OUTFIT RECORDS (SAVED OUTFITS DO NOT COUNT)
+          </p>
+        </div>
+
+        {topClothing.length > 0 ? (
+          <div className="podium-clothing-grid">
+            {topClothing.map(({ item, wearCount }, index) => (
+              <ClothingCard
+                key={item.id}
+                item={item}
+                wearCount={wearCount}
+                rank={index + 1}
+              />
+            ))}
+          </div>
+        ) : (
+          <div className="analytics-empty-panel">
+            <IconShirt size={34} />
+            <p>Your top clothing insights will appear here once you start wearing outfits.</p>
+            <p className="empty-subtext">
+              Go to the Calendar and click "[ Mark as worn ]" on any scheduled look to record wear counts.
+            </p>
+          </div>
+        )}
+      </section>
+
+      {/* 4. Laundry & Availability + Category Distribution — side by side */}
       <section className="analytics-dual-section">
         {/* Laundry & Availability */}
         <div className="analytics-section-card laundry-availability-card">
@@ -230,37 +261,6 @@ export default function AnalyticsView({
             })}
           </div>
         </div>
-      </section>
-
-      {/* 4. Top 3 Most Used Clothing */}
-      <section className="wireframe-podium-section-card">
-        <div className="podium-section-header">
-          <h2 className="podium-section-title">Top 3 Most Used Clothing</h2>
-          <p className="podium-section-subtitle">
-            STRICTLY COUNTED FROM ACTUAL WORN-OUTFIT RECORDS (SAVED OUTFITS DO NOT COUNT)
-          </p>
-        </div>
-
-        {topClothing.length > 0 ? (
-          <div className="podium-clothing-grid">
-            {topClothing.map(({ item, wearCount }, index) => (
-              <ClothingCard
-                key={item.id}
-                item={item}
-                wearCount={wearCount}
-                rank={index + 1}
-              />
-            ))}
-          </div>
-        ) : (
-          <div className="analytics-empty-panel">
-            <IconShirt size={34} />
-            <p>Your top clothing insights will appear here once you start wearing outfits.</p>
-            <p className="empty-subtext">
-              Go to the Calendar and click "[ Mark as worn ]" on any scheduled look to record wear counts.
-            </p>
-          </div>
-        )}
       </section>
 
       {/* 5. Recent Wear Logs */}

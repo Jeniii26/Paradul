@@ -4009,7 +4009,7 @@ button:disabled, .btn-primary-medium:disabled, .btn-primary-large:disabled {
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 24px;
-  margin-bottom: 24px;
+  margin-bottom: 32px;
 }
 
 .analytics-section-card {

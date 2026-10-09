@@ -26,12 +26,17 @@
  * @param {number} [limit=3]
  * @returns {Array<{ item: Object, wearCount: number }>}
  */
-export function getTopUsedClothing(clothingItems, outfits, wearRecords, limit = 3) {
-  const outfitMap = new Map(outfits.map((o) => [String(o.id), o]));
-  const clothingMap = new Map(clothingItems.map((c) => [String(c.id), c]));
+/**
+ * Calculates wear count map for all clothing items from confirmed wear records.
+ * @param {Array<Object>} outfits
+ * @param {Array<Object>} wearRecords
+ * @returns {Map<string, number>} Map of clothingId (string) -> wear count
+ */
+export function getClothingWearCountsMap(outfits = [], wearRecords = []) {
+  const outfitMap = new Map((outfits || []).map((o) => [String(o.id), o]));
   const wearCounts = new Map();
 
-  for (const record of wearRecords) {
+  for (const record of (wearRecords || [])) {
     const outfit = outfitMap.get(String(record.outfitId));
     if (!outfit) continue;
 
@@ -41,6 +46,13 @@ export function getTopUsedClothing(clothingItems, outfits, wearRecords, limit = 
       wearCounts.set(key, (wearCounts.get(key) || 0) + 1);
     }
   }
+
+  return wearCounts;
+}
+
+export function getTopUsedClothing(clothingItems, outfits, wearRecords, limit = 3) {
+  const wearCounts = getClothingWearCountsMap(outfits, wearRecords);
+  const clothingMap = new Map((clothingItems || []).map((c) => [String(c.id), c]));
 
   const results = [];
   for (const [id, count] of wearCounts.entries()) {

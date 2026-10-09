@@ -14,6 +14,7 @@ import { useState, useMemo } from 'react';
 import ClothingCard from './ClothingCard.jsx';
 import UploadModal from './UploadModal.jsx';
 import EditClothingModal from './EditClothingModal.jsx';
+import { getClothingWearCountsMap } from '../../services/analyticsService.js';
 import {
   IconPlus,
   IconFilter,
@@ -25,6 +26,8 @@ import {
 
 export default function GalleryView({
   clothingItems,
+  outfits = [],
+  wearRecords = [],
   onAddItem,
   onToggleLaundry,
   onDeleteItem,
@@ -33,6 +36,12 @@ export default function GalleryView({
 }) {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null); // item being edited
+
+  // Calculate live wear counts from confirmed wear logs
+  const wearCountsMap = useMemo(
+    () => getClothingWearCountsMap(outfits, wearRecords),
+    [outfits, wearRecords]
+  );
 
   // Filter state
   const [categoryFilter, setCategoryFilter] = useState('all'); // 'all' | 'top' | 'bottom' | 'shoes'
@@ -331,6 +340,7 @@ export default function GalleryView({
             <ClothingCard
               key={item.id}
               item={item}
+              wearCount={wearCountsMap.get(String(item.id)) || 0}
               onToggleLaundry={onToggleLaundry}
               onDelete={onDeleteItem}
               onEdit={setEditingItem}
