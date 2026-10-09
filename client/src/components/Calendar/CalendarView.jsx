@@ -1,19 +1,4 @@
-/**
- * paradu'l — Calendar & Outfit Planner View (Wireframe Spec)
- *
- * Implements the Figma wireframe Calendar specification:
- * 1. Page Header:
- *    - Title: "Outfit Planner & Calendar"
- *    - Subtitle: "X upcoming planned • Y confirmed worn"
- *    - Right button: "Schedule Outfit"
- * 2. Category Filter Pills: All Events | Scheduled | Confirmed Worn
- * 3. Horizontal Event Card Layout:
- *    - Left: Distinctive rectangular Date Badge (Mauve for Scheduled, Sage for Worn)
- *      with Month, large Day, Year, and status pill tag
- *    - Trio of piece photo thumbnails: Top | Bottom | Shoes
- *    - Event Details: Outfit title and uppercase piece summary
- *    - Right: "Mark as worn" button (or "Worn Recorded" text) with Edit/Delete square buttons
- */
+// paradu'l — Calendar & Outfit Planner View
 
 import { useState, useMemo } from 'react';
 import ScheduleModal from './ScheduleModal.jsx';
@@ -69,7 +54,6 @@ export default function CalendarView({
 
   return (
     <div className="calendar-wireframe-view">
-      {/* 1. Header with Title & Action */}
       <section className="wireframe-page-heading-row">
         <div className="heading-title-group">
           <h1 className="wireframe-main-title">Outfit Planner & Calendar</h1>
@@ -91,7 +75,7 @@ export default function CalendarView({
         </div>
       </section>
 
-      {/* 2. Filter Pills: All Events | Scheduled | Confirmed Worn */}
+      {/* Filter Tabs */}
       <section className="wireframe-category-pills-row" aria-label="Filter calendar events">
         <button
           type="button"
@@ -116,7 +100,7 @@ export default function CalendarView({
         </button>
       </section>
 
-      {/* 3. Horizontal Schedule Event Cards List */}
+      {/* Schedule Event Cards */}
       {filteredSchedules.length > 0 ? (
         <div className="wireframe-calendar-events-list">
           {filteredSchedules.map((schedule) => {

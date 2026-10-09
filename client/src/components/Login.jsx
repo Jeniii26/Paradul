@@ -1,9 +1,4 @@
-/**
- * paradu'l — Authentication View (Sign In & Sign Up)
- *
- * Supports both Sign In and Sign Up using real Supabase Auth
- * with graceful fallback to local mock authentication.
- */
+// paradu'l — Authentication View (Sign In & Sign Up)
 
 import { useState } from 'react';
 import { IconShirt, IconCheck } from './common/Icons.jsx';

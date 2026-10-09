@@ -1,14 +1,4 @@
-/**
- * paradu'l — Wardrobe Analytics & Style Insights View (Wireframe Spec)
- *
- * Implements the Figma wireframe Analytics specification:
- * 1. View Header: "Wardrobe Analytics" + subtitle
- * 2. 3 KPI cards: Total Wardrobe Value, Most Used Outfit, Most Used Color
- * 3. Laundry & Availability card
- * 4. Category Distribution with progress bars
- * 5. Recent Wear Logs section
- * 6. Top 3 Most Used Clothing section — cards show rank badge (#1, #2, #3)
- */
+// paradu'l — Wardrobe Analytics & Style Insights View
 
 import { useMemo } from 'react';
 import {
@@ -83,7 +73,6 @@ export default function AnalyticsView({
 
   return (
     <div className="analytics-wireframe-view">
-      {/* 1. View Header */}
       <section className="wireframe-page-heading-row">
         <div className="heading-title-group">
           <h1 className="wireframe-main-title">Wardrobe Analytics</h1>
@@ -93,7 +82,7 @@ export default function AnalyticsView({
         </div>
       </section>
 
-      {/* 2. Top 3 Metric Summary Cards */}
+      {/* Summary KPI Cards */}
       <section className="wireframe-metrics-triad-grid">
         {/* Metric 1: Total Wardrobe Value */}
         <div className="wireframe-kpi-card">
@@ -169,7 +158,7 @@ export default function AnalyticsView({
         </div>
       </section>
 
-      {/* 3. Top 3 Most Used Clothing */}
+      {/* Top 3 Most Used Clothing */}
       <section className="wireframe-podium-section-card">
         <div className="podium-section-header">
           <h2 className="podium-section-title">Top 3 Most Used Clothing</h2>
@@ -200,7 +189,7 @@ export default function AnalyticsView({
         )}
       </section>
 
-      {/* 4. Laundry & Availability + Category Distribution — side by side */}
+      {/* Laundry & Availability and Category Distribution */}
       <section className="analytics-dual-section">
         {/* Laundry & Availability */}
         <div className="analytics-section-card laundry-availability-card">
@@ -263,7 +252,7 @@ export default function AnalyticsView({
         </div>
       </section>
 
-      {/* 5. Recent Wear Logs */}
+      {/* Recent Wear Logs */}
       <section className="analytics-section-card recent-wearlogs-card">
         <h2 className="analytics-section-title">Recent Wear Logs</h2>
         <p className="analytics-section-subtitle">LAST 5 CONFIRMED OUTFIT WEARS</p>

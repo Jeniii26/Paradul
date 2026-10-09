@@ -1,14 +1,4 @@
-/**
- * paradu'l — Digital Wardrobe Gallery View (Wireframe Spec)
- *
- * Implements the Figma wireframe Gallery specification:
- * 1. Hero Motivational Quote Banner with Cormorant Garamond quote and laundry basket artwork
- * 2. Ornamental flourish divider: ◇ ꕤ ◇
- * 3. Page title: "Digital Wardrobe" & dynamic curated pieces subtitle
- * 4. Category Pills: All | Tops | Bottoms | Shoes
- * 5. Toolbar with Search and compact STYLE, COLOR, STATUS, MAX PRICE selects
- * 6. Responsive 3-column clothing card grid
- */
+// paradu'l — Digital Wardrobe Gallery View
 
 import { useState, useMemo } from 'react';
 import ClothingCard from './ClothingCard.jsx';

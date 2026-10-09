@@ -1,37 +1,14 @@
 /**
  * paradu'l — Wardrobe Analytics Service
  *
- * Encapsulates all data aggregation, usage counters, wardrobe valuation,
- * and style metrics calculations outside the UI components.
+ * Computes wardrobe usage metrics, valuations, and style statistics.
  *
- * IMPORTANT BUSINESS RULES:
- * 1. Clothing usage counters are strictly derived from confirmed wear logs
- *    (WearRecords), NOT merely from saved or scheduled outfits.
- * 2. Wardrobe valuation sums active individual clothing items exactly once,
- *    preventing double-counting items that exist in multiple saved outfits.
+ * Rules:
+ * - Wear counts are derived strictly from confirmed wear records (WearRecords).
+ * - Wardrobe valuation counts each piece once without duplicating pieces across outfits.
  */
 
-/**
- * Calculates the Top 3 most worn clothing items.
- *
- * Algorithm:
- * 1. For each wear record, locate the corresponding outfit.
- * 2. Retrieve the IDs for the top, bottom, and shoes of that outfit.
- * 3. Accumulate wear counts per clothing item.
- * 4. Sort descending and return the top 3 items with their counts.
- *
- * @param {Array<Object>} clothingItems
- * @param {Array<Object>} outfits
- * @param {Array<Object>} wearRecords
- * @param {number} [limit=3]
- * @returns {Array<{ item: Object, wearCount: number }>}
- */
-/**
- * Calculates wear count map for all clothing items from confirmed wear records.
- * @param {Array<Object>} outfits
- * @param {Array<Object>} wearRecords
- * @returns {Map<string, number>} Map of clothingId (string) -> wear count
- */
+// Calculates wear count map for all clothing items from confirmed wear records.
 export function getClothingWearCountsMap(outfits = [], wearRecords = []) {
   const outfitMap = new Map((outfits || []).map((o) => [String(o.id), o]));
   const wearCounts = new Map();
@@ -50,6 +27,7 @@ export function getClothingWearCountsMap(outfits = [], wearRecords = []) {
   return wearCounts;
 }
 
+// Returns the top N most worn clothing items.
 export function getTopUsedClothing(clothingItems, outfits, wearRecords, limit = 3) {
   const wearCounts = getClothingWearCountsMap(outfits, wearRecords);
   const clothingMap = new Map((clothingItems || []).map((c) => [String(c.id), c]));
@@ -67,18 +45,7 @@ export function getTopUsedClothing(clothingItems, outfits, wearRecords, limit = 
     .slice(0, limit);
 }
 
-/**
- * Calculates the most frequently worn outfit.
- *
- * Algorithm:
- * 1. Group wear records by outfitId.
- * 2. Count occurrences of each outfit.
- * 3. Find the outfit with the maximum wear count.
- *
- * @param {Array<Object>} outfits
- * @param {Array<Object>} wearRecords
- * @returns {{ outfit: Object, wearCount: number } | null}
- */
+// Returns the outfit with the highest confirmed wear count.
 export function getTopOutfit(outfits, wearRecords) {
   if (!wearRecords || wearRecords.length === 0) return null;
 
@@ -106,20 +73,7 @@ export function getTopOutfit(outfits, wearRecords) {
   return { outfit, wearCount: maxCount };
 }
 
-/**
- * Calculates the most frequently worn color in outfits.
- *
- * Algorithm:
- * 1. For each confirmed wear record, lookup its outfit.
- * 2. For each piece (top, bottom, shoes) in that outfit, retrieve its color.
- * 3. Count occurrences across all worn pieces.
- * 4. Return the color with the highest usage count.
- *
- * @param {Array<Object>} clothingItems
- * @param {Array<Object>} outfits
- * @param {Array<Object>} wearRecords
- * @returns {{ color: string, count: number } | null}
- */
+// Determines the most worn color across all pieces in confirmed outfits.
 export function getTopColor(clothingItems, outfits, wearRecords) {
   if (!wearRecords || wearRecords.length === 0) return null;
 
@@ -156,13 +110,7 @@ export function getTopColor(clothingItems, outfits, wearRecords) {
   return { color: topColor, count: maxCount };
 }
 
-/**
- * Calculates the total market value of the wardrobe.
- * Sums the price of every active clothing item exactly once.
- *
- * @param {Array<Object>} clothingItems
- * @returns {number} Sum of clothing prices in standard currency unit (₱)
- */
+// Sums the price of every active clothing item counted once in Philippine Pesos (₱).
 export function getTotalWardrobeValue(clothingItems) {
   return clothingItems.reduce((sum, item) => {
     const price = Number(item.price);
@@ -170,11 +118,7 @@ export function getTotalWardrobeValue(clothingItems) {
   }, 0);
 }
 
-/**
- * Returns category distribution statistics
- * @param {Array<Object>} clothingItems
- * @returns {{ top: number, bottom: number, shoes: number, total: number }}
- */
+// Counts pieces by category (top, bottom, shoes).
 export function getCategoryBreakdown(clothingItems) {
   const counts = { top: 0, bottom: 0, shoes: 0, total: clothingItems.length };
   for (const item of clothingItems) {
@@ -185,11 +129,7 @@ export function getCategoryBreakdown(clothingItems) {
   return counts;
 }
 
-/**
- * Returns current laundry status breakdown
- * @param {Array<Object>} clothingItems
- * @returns {{ available: number, inLaundry: number }}
- */
+// Calculates counts of clean vs in-laundry items.
 export function getLaundryBreakdown(clothingItems) {
   let available = 0;
   let inLaundry = 0;

@@ -1,16 +1,4 @@
-/**
- * paradu'l — Clothing Card Component (Wireframe Spec)
- *
- * Implements the Figma wireframe card layout:
- * - Inset rounded photo frame with clean porcelain/linen background
- * - Top-left: rank badge (#1/#2/#3) when `rank` prop is provided, otherwise status dot badge
- * - Micro category & size line: "BLOUSES · SIZE S"
- * - Cormorant Garamond serif title: "Ivory Linen Blouse"
- * - Subtitle description: "Mandarin collar · Mother-of-pearl buttons"
- * - Hairline divider
- * - Footer: Color dot indicator + name on left, wear count ("Worn 14×") on right
- * - Subtle hover overlay for quick edit, laundry toggle & delete actions
- */
+// paradu'l — Clothing Card Component
 
 import { IconTrash, IconLaundry, IconCheck, IconEdit } from '../common/Icons.jsx';
 
@@ -42,7 +30,6 @@ export default function ClothingCard({
 
   return (
     <article className={`wireframe-clothing-card ${isLaundry ? 'is-laundry-card' : ''}`}>
-      {/* 1. Inset Image Frame */}
       <div className="card-photo-frame">
         {/* Top-left badge: rank badge in analytics, status dot in gallery */}
         {rank ? (
@@ -128,7 +115,6 @@ export default function ClothingCard({
         </div>
       </div>
 
-      {/* 2. Metadata Content */}
       <div className="card-body-content">
         <span className="card-micro-category">{microCategory}</span>
 

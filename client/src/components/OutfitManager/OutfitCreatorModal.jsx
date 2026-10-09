@@ -1,13 +1,4 @@
-/**
- * paradu'l — Outfit Creator & Customizer Modal
- *
- * Implements:
- * - Exactly 1 Top, 1 Bottom, 1 Shoes selection
- * - Live synchronized outfit stack preview
- * - Random Outfit Generator (strictly excludes items in laundry)
- * - Validation: cannot save unless all 3 components are chosen
- * - Edit mode support when an existing outfit is passed
- */
+// paradu'l — Outfit Creator & Customizer Modal
 
 import { useState, useEffect, useMemo } from 'react';
 import Modal from '../common/Modal.jsx';
@@ -51,7 +42,7 @@ export default function OutfitCreatorModal({
     [clothingItems]
   );
 
-  // Available items eligible for randomizer (excludes in_laundry items per Requirement #25)
+  // Only clean items are eligible for outfit creation and randomization
   const availableTops = useMemo(
     () => tops.filter((i) => i.laundryStatus !== 'in_laundry'),
     [tops]
@@ -106,11 +97,7 @@ export default function OutfitCreatorModal({
   const currentBottom = bottoms.find((i) => String(i.id) === String(selectedBottomId));
   const currentShoes = shoes.find((i) => String(i.id) === String(selectedShoesId));
 
-  /**
-   * Random Outfit Generator (Requirement #25)
-   * Selects 1 available top, 1 available bottom, and 1 available pair of shoes.
-   * Strictly filters out items marked 'in_laundry'.
-   */
+  // Randomly selects 1 clean top, 1 bottom, and 1 pair of shoes
   const handleRandomize = () => {
     setValidationError('');
 
@@ -148,7 +135,7 @@ export default function OutfitCreatorModal({
     e.preventDefault();
     setValidationError('');
 
-    // Business rule: Every outfit must have exactly 1 Top, 1 Bottom, and 1 Shoes (Requirement #22)
+    // Validate that all three pieces are selected
     if (!selectedTopId || !selectedBottomId || !selectedShoesId) {
       setValidationError('An outfit requires all 3 pieces: 1 Top, 1 Bottom, and 1 pair of Shoes.');
       return;

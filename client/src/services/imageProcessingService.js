@@ -1,24 +1,14 @@
 /**
  * paradu'l — Image Processing Service
  *
- * Provides client-side image processing, background removal abstraction,
- * and assisted clothing category & color detection.
- *
- * ARCHITECTURE NOTE:
- * This service encapsulates image manipulation logic outside the UI components.
- * In a future phase with Supabase / external AI APIs, the internal implementation
- * of removeBackground and detectClothing can be routed to external cloud endpoints
- * without requiring changes to the consuming UI components.
+ * Client-side canvas operations for image resizing, perimeter-sampling
+ * background removal, and heuristic clothing categorization.
  */
 
-// Maximum canvas dimension to keep localStorage payloads reasonable (~60-150KB)
+// Max canvas dimension to keep storage payloads lightweight (~60-150KB)
 const MAX_DIMENSION = 640;
 
-/**
- * Reads a File object into an HTMLImageElement
- * @param {File} file
- * @returns {Promise<HTMLImageElement>}
- */
+// Loads a File object into an HTMLImageElement
 export function loadImageFromFile(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -33,12 +23,7 @@ export function loadImageFromFile(file) {
   });
 }
 
-/**
- * Resizes an image onto an in-memory canvas maintaining aspect ratio
- * @param {HTMLImageElement} img
- * @param {number} maxDim
- * @returns {{ canvas: HTMLCanvasElement, ctx: CanvasRenderingContext2D, width: number, height: number }}
- */
+// Resizes an image onto an in-memory canvas while maintaining aspect ratio
 function createScaledCanvas(img, maxDim = MAX_DIMENSION) {
   let { width, height } = img;
   if (width > maxDim || height > maxDim) {
@@ -59,9 +44,7 @@ function createScaledCanvas(img, maxDim = MAX_DIMENSION) {
   return { canvas, ctx, width, height };
 }
 
-/**
- * Measures Euclidean distance between two RGB colors
- */
+// Euclidean distance between two RGB colors
 function colorDistance(r1, g1, b1, r2, g2, b2) {
   const dr = r1 - r2;
   const dg = g1 - g2;
@@ -70,37 +53,23 @@ function colorDistance(r1, g1, b1, r2, g2, b2) {
 }
 
 /**
- * Removes background from an image file using smart perimeter color-keying
- * and transparency alpha masking.
- *
- * Algorithm explanation:
- * 1. Samples perimeter pixels (top, bottom, left, right edges) to determine the
- *    ambient backdrop color and variance (e.g. white wall, studio floor, bedsheet).
- * 2. Scans pixels and calculates color distance from the ambient background.
- * 3. Connected/similar background pixels have their alpha set to 0 (transparent).
- * 4. Applies an edge-feathering threshold to preserve clothing contours without harsh artifacts.
- * 5. Returns a transparent PNG data URL and metadata.
- *
- * @param {File} file
- * @param {Object} options
- * @returns {Promise<{ imageUrl: string, originalImageUrl: string, width: number, height: number, hasTransparentBackground: boolean }>}
+ * Removes background using perimeter color-sampling and transparency masking.
+ * Samples edge pixels to establish backdrop reference, then masks matching pixels with edge feathering.
  */
 export async function removeBackground(file, options = {}) {
   const threshold = options.threshold ?? 38;
   const img = await loadImageFromFile(file);
 
-  // Scaled canvas for processing
   const { canvas, ctx, width, height } = createScaledCanvas(img);
   const originalImageUrl = canvas.toDataURL('image/jpeg', 0.82);
 
   const imgData = ctx.getImageData(0, 0, width, height);
   const data = imgData.data;
 
-  // Step 1: Sample perimeter pixels to establish background reference
+  // Sample perimeter pixels to establish backdrop reference color
   const bgSamples = [];
   const sampleStep = Math.max(1, Math.floor(Math.min(width, height) / 40));
 
-  // Top & bottom rows
   for (let x = 0; x < width; x += sampleStep) {
     const topIdx = (0 * width + x) * 4;
     const botIdx = ((height - 1) * width + x) * 4;
@@ -108,7 +77,6 @@ export async function removeBackground(file, options = {}) {
     bgSamples.push([data[botIdx], data[botIdx + 1], data[botIdx + 2]]);
   }
 
-  // Left & right columns
   for (let y = 0; y < height; y += sampleStep) {
     const leftIdx = (y * width + 0) * 4;
     const rightIdx = (y * width + (width - 1)) * 4;
@@ -116,7 +84,6 @@ export async function removeBackground(file, options = {}) {
     bgSamples.push([data[rightIdx], data[rightIdx + 1], data[rightIdx + 2]]);
   }
 
-  // Calculate median/average background color
   let sumR = 0, sumG = 0, sumB = 0;
   for (const [r, g, b] of bgSamples) {
     sumR += r;
@@ -127,7 +94,7 @@ export async function removeBackground(file, options = {}) {
   const bgG = Math.round(sumG / bgSamples.length);
   const bgB = Math.round(sumB / bgSamples.length);
 
-  // Step 2: Flood/distance keying for transparent alpha channel
+  // Mask pixels matching the background color with edge feathering
   let removedPixelsCount = 0;
   const totalPixels = width * height;
 
@@ -139,11 +106,9 @@ export async function removeBackground(file, options = {}) {
     const dist = colorDistance(r, g, b, bgR, bgG, bgB);
 
     if (dist < threshold) {
-      // Pixel matches background: make fully transparent
       data[i + 3] = 0;
       removedPixelsCount++;
     } else if (dist < threshold + 18) {
-      // Feathered transition boundary
       const alphaFactor = (dist - threshold) / 18;
       data[i + 3] = Math.round(data[i + 3] * alphaFactor);
     }
@@ -151,7 +116,6 @@ export async function removeBackground(file, options = {}) {
 
   ctx.putImageData(imgData, 0, 0);
 
-  // Export processed transparent PNG
   const processedDataUrl = canvas.toDataURL('image/png');
   const hasTransparentBackground = removedPixelsCount > (totalPixels * 0.05);
 
@@ -164,9 +128,6 @@ export async function removeBackground(file, options = {}) {
   };
 }
 
-/**
- * Standard fashion color palette mapping table
- */
 const FASHION_COLORS = [
   { name: 'White', r: 245, g: 245, b: 245 },
   { name: 'Black', r: 25, g: 25, b: 25 },
@@ -183,11 +144,7 @@ const FASHION_COLORS = [
   { name: 'Burgundy', r: 110, g: 25, b: 45 },
 ];
 
-/**
- * Determines dominant clothing color from non-transparent pixels
- * @param {HTMLImageElement} img
- * @returns {string}
- */
+// Identifies the dominant fashion color from non-transparent pixels
 export function extractDominantColor(img) {
   const { ctx, width, height } = createScaledCanvas(img, 120);
   const data = ctx.getImageData(0, 0, width, height).data;
@@ -196,7 +153,6 @@ export function extractDominantColor(img) {
 
   for (let i = 0; i < data.length; i += 4) {
     const alpha = data[i + 3];
-    // Exclude transparent and near-transparent pixels
     if (alpha > 60) {
       totalR += data[i];
       totalG += data[i + 1];
@@ -211,7 +167,6 @@ export function extractDominantColor(img) {
   const avgG = Math.round(totalG / count);
   const avgB = Math.round(totalB / count);
 
-  // Match to closest standard fashion color
   let closestColor = 'Black';
   let minDistance = Infinity;
 
@@ -226,17 +181,7 @@ export function extractDominantColor(img) {
   return closestColor;
 }
 
-/**
- * Analyzes clothing image characteristics (aspect ratio, silhouette geometry,
- * and pixel density) to provide assisted classification into Top, Bottom, or Shoes.
- *
- * In accordance with requirements:
- * This assisted prediction provides a smart default, while the user
- * is always presented with manual correction controls in the UI.
- *
- * @param {File} file
- * @returns {Promise<{ category: 'top' | 'bottom' | 'shoes', detectedColor: string, confidence: number }>}
- */
+// Predicts category and color based on silhouette aspect ratio and pixel analysis
 export async function detectClothing(file) {
   const img = await loadImageFromFile(file);
   const { width, height } = img;
@@ -247,19 +192,13 @@ export async function detectClothing(file) {
   let category = 'top';
   let confidence = 0.75;
 
-  // Heuristic geometric classification:
-  // Shoes are typically landscape or squarish with heavy lower base
   if (ratio > 1.15) {
     category = 'shoes';
     confidence = 0.82;
-  }
-  // Bottoms (trousers, jeans, skirts) are distinctly vertical and elongated
-  else if (ratio < 0.65) {
+  } else if (ratio < 0.65) {
     category = 'bottom';
     confidence = 0.86;
-  }
-  // Tops (shirts, jackets, hoodies) typically fall in the intermediate ratio range
-  else {
+  } else {
     category = 'top';
     confidence = 0.80;
   }

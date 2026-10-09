@@ -1,9 +1,4 @@
-/**
- * paradu'l — Schedule Outfit Modal
- *
- * Allows users to schedule any saved outfit to a specific calendar date,
- * with optional occasion and notes.
- */
+// paradu'l — Schedule Outfit Modal
 
 import { useState, useEffect } from 'react';
 import Modal from '../common/Modal.jsx';

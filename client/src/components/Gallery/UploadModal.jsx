@@ -1,10 +1,4 @@
-/**
- * paradu'l — Real Photo Upload & Image Processing Modal
- *
- * Implements real file upload from device, genuine background removal,
- * assisted category and color detection, preview toggle (transparent vs original),
- * and manual metadata editing before saving.
- */
+// paradu'l — Photo Upload & Processing Modal
 
 import { useState, useRef } from 'react';
 import Modal from '../common/Modal.jsx';

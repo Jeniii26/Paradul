@@ -1,10 +1,4 @@
-/**
- * paradu'l — Edit Clothing Modal
- *
- * Allows the user to edit existing clothing item metadata:
- * name, category, color, price, style, and laundry status.
- * The image itself cannot be changed here (use delete + re-upload for that).
- */
+// paradu'l — Edit Clothing Modal
 
 import { useState } from 'react';
 import Modal from '../common/Modal.jsx';

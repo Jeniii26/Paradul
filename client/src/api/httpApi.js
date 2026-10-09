@@ -1,9 +1,5 @@
-/**
- * paradu'l — Real HTTP Client API (httpApi.js)
- *
- * Implements the same function signatures as mockApi.js for future backend integration.
- * In production or week 2+, this calls the Express/PostgreSQL API.
- */
+// paradu'l — HTTP API Client
+
 
 const env = (typeof import.meta !== 'undefined' && import.meta.env)
   ? import.meta.env

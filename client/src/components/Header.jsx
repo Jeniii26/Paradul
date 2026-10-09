@@ -1,20 +1,5 @@
-/**
- * paradu'l — Main Header and Top Navigation Bar
- *
- * Implements the Figma wireframe header specification:
- * 1. Topmost edge-to-edge dark plum banner: "REDISCOVER CLOTHES YOU ALREADY OWN"
- * 2. Centered paradu'l illustration logo with Account access in top-right
- * 3. Ornamental flourish divider: ◇ ꕤ ◇
- * 4. Centered editorial navigation tabs: Gallery | Outfit Manager | Calendar | Analytics
- * 5. Active tab underline indicator
- * 6. Bottom ornamental flourish divider: ◇ ꕤ ◇
- */
-
 import { useState, useRef, useEffect } from 'react';
-import {
-  IconLogOut,
-  FlourishDivider,
-} from './common/Icons.jsx';
+import { IconLogOut, FlourishDivider } from './common/Icons.jsx';
 
 export default function Header({ activeTab, onSelectTab, currentUser, onLogout }) {
   const [isAccountOpen, setIsAccountOpen] = useState(false);
@@ -27,7 +12,7 @@ export default function Header({ activeTab, onSelectTab, currentUser, onLogout }
     { id: 'analytics', label: 'Analytics' },
   ];
 
-  // Close account dropdown on outside click
+  // Close account menu on click outside
   useEffect(() => {
     function handleClickOutside(event) {
       if (accountRef.current && !accountRef.current.contains(event.target)) {
@@ -40,7 +25,6 @@ export default function Header({ activeTab, onSelectTab, currentUser, onLogout }
 
   return (
     <header className="app-header-wireframe">
-      {/* 1. Top edge-to-edge banner */}
       <div className="top-rediscover-banner">
         <span>REDISCOVER</span>
         <span className="banner-spacer">&nbsp;&nbsp;&nbsp;&nbsp;</span>
@@ -54,10 +38,9 @@ export default function Header({ activeTab, onSelectTab, currentUser, onLogout }
       </div>
 
       <div className="header-wireframe-inner">
-        {/* Top Logo & Account Row */}
         <div className="header-brand-row">
           <div className="header-brand-spacer" aria-hidden="true" />
-          
+
           <div
             className="header-brand-center"
             onClick={() => onSelectTab('gallery')}
@@ -105,10 +88,8 @@ export default function Header({ activeTab, onSelectTab, currentUser, onLogout }
           </div>
         </div>
 
-        {/* First flourish divider */}
         <FlourishDivider className="header-top-flourish" />
 
-        {/* Primary Navigation Tabs */}
         <nav className="header-nav-wireframe" aria-label="Main Navigation">
           <ul className="nav-wireframe-list">
             {tabs.map((tab) => {
@@ -130,7 +111,6 @@ export default function Header({ activeTab, onSelectTab, currentUser, onLogout }
           </ul>
         </nav>
 
-        {/* Second flourish divider */}
         <FlourishDivider className="header-bottom-flourish" />
       </div>
     </header>

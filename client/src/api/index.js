@@ -1,12 +1,4 @@
-/**
- * paradu'l — Unified API Gateway (index.js)
- *
- * Single entry point for all frontend components.
- * Dynamically routes data requests to:
- * 1. supabaseApi (when VITE_USE_MOCK_API=false and Supabase keys are configured)
- * 2. httpApi (when pointing to custom Express/PostgreSQL backend)
- * 3. mockApi (simulated localStorage backend for demo / offline use)
- */
+// paradu'l — Unified API Gateway
 
 import * as mockApi from './mockApi.js';
 import * as httpApi from './httpApi.js';

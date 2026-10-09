@@ -1,14 +1,4 @@
-/**
- * paradu'l — Outfit Manager View (Wireframe Spec)
- *
- * Implements the Figma wireframe Outfit Manager specification:
- * 1. Page Title Header:
- *    - Title: "Outfit Manager"
- *    - Subtitle: "X saved looks • 3-piece coordinated ensembles"
- *    - Right buttons: "Randomize" (secondary) and "Create Outfit" (primary)
- * 2. 2-to-3 column grid of 3-piece outfit cards
- * 3. Outfit Creator and Randomizer Modal
- */
+// paradu'l — Outfit Manager View
 
 import { useState, useMemo } from 'react';
 import OutfitCard from './OutfitCard.jsx';

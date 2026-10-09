@@ -1,17 +1,6 @@
 /**
  * paradu'l — Laundry Management Service
- *
- * Centralizes all laundry state transitions, 7-day automatic wear schedules,
- * expiration checks, and manual overrides.
- *
- * BUSINESS RULES:
- * 1. An outfit marked as 'worn' automatically places its Top and Bottom into laundry
- *    for exactly 7 days from the wear date.
- * 2. Shoes are NOT automatically marked for laundry when an outfit is worn, but
- *    can be manually moved in or out of laundry.
- * 3. When currentDate >= laundryUntil, the clothing item's effective status
- *    reverts to 'available'.
- * 4. Users can manually toggle any item between 'available' and 'in_laundry' at any time.
+ * Handles laundry state transitions, 7-day automatic wear cycles, and manual overrides.
  */
 
 const LAUNDRY_DURATION_DAYS = 7;

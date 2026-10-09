@@ -1,13 +1,6 @@
 /**
- * paradu'l — Simulated Local API Implementation (mockApi.js)
- *
- * Implements the full wardrobe data persistence layer using browser localStorage.
- * Every function returns a Promise with simulated latency, matching httpApi.js
- * exactly so components remain decoupled from the persistence backend.
- *
- * ARCHITECTURE COMPATIBILITY:
- * In a future development phase with Supabase, `httpApi.js` or a new `supabaseApi.js`
- * will provide the same contract, allowing seamless transition without UI rewrites.
+ * paradu'l — Local Storage API
+ * Provides simulated asynchronous persistence for clothing, outfits, schedules, and wear records.
  */
 
 import {
@@ -55,9 +48,7 @@ function writeStorage(key, data) {
   return data;
 }
 
-// ============================================================================
-// CLOTHING API
-// ============================================================================
+// Clothing API
 
 /**
  * Lists all clothing items with automatic laundry expiration checks
@@ -125,9 +116,7 @@ export async function deleteClothing(id) {
   return { success: true, id };
 }
 
-// ============================================================================
-// OUTFITS API
-// ============================================================================
+// Outfits API
 
 export async function listOutfits() {
   await delay();
@@ -181,15 +170,13 @@ export async function updateOutfit(id, updates) {
 export async function deleteOutfit(id) {
   await delay();
   const outfits = await listOutfits();
-  // Deleting an outfit does NOT delete clothing items
+  // Deleting an outfit does not delete its clothing items
   const filtered = outfits.filter((o) => String(o.id) !== String(id));
   writeStorage(KEYS.OUTFITS, filtered);
   return { success: true, id };
 }
 
-// ============================================================================
-// CALENDAR & SCHEDULES API
-// ============================================================================
+// Calendar & Schedules API
 
 export async function listSchedules() {
   await delay();
@@ -243,14 +230,8 @@ export async function deleteSchedule(id) {
 }
 
 /**
- * Marks a scheduled outfit as worn.
- *
- * CRITICAL BUSINESS LOGIC:
- * 1. Confirms the transition from 'scheduled' (intention) to 'worn' (actual usage).
- * 2. Creates a persistent WearRecord for accurate analytics.
- * 3. Automatically moves the outfit's Top and Bottom into laundry for 7 days.
- * 4. Shoes remain unaffected (manual control only).
- * 5. Returns updated schedule, clothing items, and wear record.
+ * Marks a scheduled outfit as worn, creates a wear record,
+ * and moves tops & bottoms into 7-day laundry.
  */
 export async function markScheduleWorn(scheduleId) {
   await delay();
@@ -294,9 +275,7 @@ export async function markScheduleWorn(scheduleId) {
   };
 }
 
-// ============================================================================
-// WEAR RECORDS API (ANALYTICS BACKING)
-// ============================================================================
+// Wear Records API
 
 export async function listWearRecords() {
   await delay();
@@ -318,9 +297,7 @@ export async function logWearRecord(outfitId, wornDate = new Date().toISOString(
   return newRecord;
 }
 
-// ============================================================================
-// RESET DEMO DATA
-// ============================================================================
+// Reset Demo Data
 
 export async function resetDemoData() {
   await delay();

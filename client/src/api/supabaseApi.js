@@ -1,9 +1,6 @@
 /**
- * paradu'l — Real Supabase Database & Storage API Implementation
- *
- * Direct database integration using @supabase/supabase-js.
- * Operates with PostgreSQL tables protected by Row Level Security (RLS)
- * and uploads isolated transparent photos to the 'clothing-images' storage bucket.
+ * paradu'l — Supabase Database & Storage API
+ * Integrates directly with Supabase PostgreSQL tables and Storage buckets.
  */
 
 import { supabase } from './supabaseClient.js';
@@ -21,9 +18,7 @@ async function getAuthUserId() {
   return user.id;
 }
 
-// ============================================================================
 // Data Converters (PostgreSQL snake_case <-> Application camelCase)
-// ============================================================================
 
 function clothingFromRow(row) {
   if (!row) return null;
@@ -125,9 +120,7 @@ function wearRecordFromRow(row) {
   };
 }
 
-// ============================================================================
 // Supabase Cloud Storage Helper
-// ============================================================================
 
 /**
  * Uploads an image (data URL or blob) to the 'clothing-images' Supabase Storage bucket.
@@ -168,9 +161,7 @@ async function uploadToStorageIfPossible(imageUrlOrDataUrl, userId) {
   }
 }
 
-// ============================================================================
-// CLOTHING API
-// ============================================================================
+// Clothing API
 
 export async function listClothing() {
   const userId = await getAuthUserId();
@@ -280,9 +271,7 @@ export async function deleteClothing(id) {
   return { success: true, id };
 }
 
-// ============================================================================
-// OUTFITS API
-// ============================================================================
+// Outfits API
 
 export async function listOutfits() {
   const userId = await getAuthUserId();
@@ -368,9 +357,7 @@ export async function deleteOutfit(id) {
   return { success: true, id };
 }
 
-// ============================================================================
-// CALENDAR & SCHEDULES API
-// ============================================================================
+// Calendar & Schedules API
 
 export async function listSchedules() {
   const userId = await getAuthUserId();
@@ -522,9 +509,7 @@ export async function markScheduleWorn(scheduleId) {
   };
 }
 
-// ============================================================================
-// WEAR RECORDS API
-// ============================================================================
+// Wear Records API
 
 export async function listWearRecords() {
   const userId = await getAuthUserId();
@@ -556,9 +541,7 @@ export async function logWearRecord(outfitId, wornDate = new Date().toISOString(
   return wearRecordFromRow(data);
 }
 
-// ============================================================================
-// SEED DEMO WARDROBE INTO USER'S SUPABASE ACCOUNT
-// ============================================================================
+// Demo Seed & Reset
 
 export async function resetDemoData() {
   const userId = await getAuthUserId();

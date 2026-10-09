@@ -1,15 +1,4 @@
-/**
- * paradu'l — Outfit Card Component (Wireframe Spec)
- *
- * Implements the Figma wireframe outfit card layout:
- * - 3 side-by-side rectangular piece photo frames: Top | Bottom | Shoes
- * - Micro-label for style/occasion: "CASUAL · 3 PIECES"
- * - Cormorant Garamond serif title: "Daily Blue & Lilac Fit"
- * - Hairline divider
- * - Bottom action bar:
- *   - Left: "Schedule" primary button
- *   - Right: Edit (pencil) & Delete (trash) square outline buttons
- */
+// paradu'l — Outfit Card Component
 
 import { IconCalendar, IconEdit, IconTrash, IconShirt, IconPants, IconShoes } from '../common/Icons.jsx';
 

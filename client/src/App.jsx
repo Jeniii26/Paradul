@@ -1,14 +1,3 @@
-/**
- * paradu'l — Main Application Component (App.jsx)
- *
- * Central state orchestration layer connecting:
- * - Mock Authentication session
- * - 4 Main Navigation Views: Gallery, Outfit Manager, Calendar, Analytics
- * - Unified Application Data Store (Clothing, Outfits, Schedules, Wear History)
- * - Automatic 7-Day Laundry transitions on outfit wear
- * - Synchronized updates across all dependent views
- */
-
 import { useState, useEffect, useCallback } from 'react';
 import Header from './components/Header.jsx';
 import Login from './components/Login.jsx';
@@ -47,24 +36,21 @@ import { toggleItemLaundryStatus } from './services/laundryService.js';
 import { IconCheck } from './components/common/Icons.jsx';
 
 export default function App() {
-  // Auth state
   const [currentUser, setCurrentUser] = useState(() => getCurrentSession());
-
-  // Active top navigation tab (Requirement #7: Gallery, Outfit Manager, Calendar, Analytics)
   const [activeTab, setActiveTab] = useState('gallery');
 
-  // Application Data Store
+  // Application data store
   const [clothingItems, setClothingItems] = useState([]);
   const [outfits, setOutfits] = useState([]);
   const [schedules, setSchedules] = useState([]);
   const [wearRecords, setWearRecords] = useState([]);
   const [isLoadingData, setIsLoadingData] = useState(true);
 
-  // Global schedule modal (can be opened from Outfit Manager or Calendar)
+  // Global schedule modal state
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
   const [schedulingOutfit, setSchedulingOutfit] = useState(null);
 
-  // User-facing feedback toast
+  // Feedback notifications
   const [toastMessage, setToastMessage] = useState('');
 
   const showToast = (msg) => {
@@ -74,9 +60,6 @@ export default function App() {
     }, 3500);
   };
 
-  /**
-   * Refreshes all application data from the unified API layer
-   */
   const loadAppData = useCallback(async () => {
     setIsLoadingData(true);
     try {
@@ -99,7 +82,7 @@ export default function App() {
     }
   }, []);
 
-  // Restore active Supabase session on mount and subscribe to auth changes
+  // Listen for authentication changes and restore active session
   useEffect(() => {
     let isMounted = true;
     getActiveUser().then((user) => {
@@ -126,10 +109,7 @@ export default function App() {
     }
   }, [currentUser, loadAppData]);
 
-  // ==========================================================================
-  // AUTHENTICATION HANDLERS (Requirement #4)
-  // ==========================================================================
-
+  // Auth handlers
   const handleLogin = async (email, password, rememberMe) => {
     const user = await loginWithEmail(email, password, rememberMe);
     setCurrentUser(user);
@@ -150,10 +130,7 @@ export default function App() {
     showToast('Signed out of paradu\'l.');
   };
 
-  // ==========================================================================
-  // CLOTHING INVENTORY HANDLERS
-  // ==========================================================================
-
+  // Clothing inventory handlers
   const handleAddClothing = async (itemInput) => {
     try {
       const created = await createClothing(itemInput);
@@ -204,15 +181,11 @@ export default function App() {
       showToast(`"${updated.name}" updated successfully!`);
     } catch (err) {
       showToast(`Error updating item: ${err.message}`);
-      throw err; // re-throw so modal can show error
+      throw err;
     }
   };
 
-
-  // ==========================================================================
-  // OUTFIT MANAGER HANDLERS
-  // ==========================================================================
-
+  // Outfit manager handlers
   const handleSaveOutfit = async (outfitInput) => {
     try {
       if (outfitInput.id) {
@@ -249,10 +222,7 @@ export default function App() {
     setIsScheduleModalOpen(true);
   };
 
-  // ==========================================================================
-  // CALENDAR & LAUNDRY WEAR HANDLERS (Requirements #30-#35)
-  // ==========================================================================
-
+  // Calendar and wear logs
   const handleSaveSchedule = async (scheduleInput) => {
     try {
       if (scheduleInput.id) {
@@ -282,27 +252,17 @@ export default function App() {
     }
   };
 
-  /**
-   * CRITICAL BUSINESS LOGIC:
-   * When user clicks [ Mark as Worn ] on a scheduled outfit:
-   * 1. Status flips to 'worn'
-   * 2. Wear record created (persisted in wearRecords -> reflects immediately in Analytics)
-   * 3. Top and Bottom enter automatic 7-day laundry period
-   * 4. Shoes remain unaffected
-   */
+  // Mark worn: creates verified wear record and moves top & bottom into a 7-day laundry cycle
   const handleMarkWorn = async (scheduleId) => {
     try {
       const result = await markScheduleWorn(scheduleId);
 
-      // 1. Update schedules state
       setSchedules((prev) =>
         prev.map((s) => (String(s.id) === String(scheduleId) ? result.schedule : s))
       );
 
-      // 2. Append new wear record for analytics
       setWearRecords((prev) => [result.wearRecord, ...prev]);
 
-      // 3. Update clothing catalog with items sent to 7-day laundry
       if (result.updatedClothing && result.updatedClothing.length > 0) {
         setClothingItems(result.updatedClothing);
       }
@@ -313,14 +273,12 @@ export default function App() {
     }
   };
 
-  // If user is not authenticated, show the login view
   if (!currentUser) {
     return <Login onLoginSuccess={handleLogin} onSignUpSuccess={handleSignUp} />;
   }
 
   return (
     <div className="app-container">
-      {/* Top Brand Header & 4 Primary Navigation Tabs */}
       <Header
         activeTab={activeTab}
         onSelectTab={setActiveTab}
@@ -328,7 +286,6 @@ export default function App() {
         onLogout={handleLogout}
       />
 
-      {/* Main Content Area */}
       <main className="main-content-layout">
         {isLoadingData ? (
           <div className="upload-processing-box" style={{ padding: '4rem 1rem' }}>
@@ -384,7 +341,6 @@ export default function App() {
         )}
       </main>
 
-      {/* Global Schedule Modal (invoked from Outfit Manager) */}
       <ScheduleModal
         isOpen={isScheduleModalOpen}
         onClose={() => {
@@ -397,7 +353,6 @@ export default function App() {
         onSaveSchedule={handleSaveSchedule}
       />
 
-      {/* Feedback Toast */}
       {toastMessage && (
         <div className="toast-notification" role="status">
           <IconCheck size={16} />

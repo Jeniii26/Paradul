@@ -1,8 +1,6 @@
 /**
  * paradu'l — Automated Test Verification Suite
- *
- * Verifies core business rules, service logic, data persistence,
- * laundry expiration calculations, and analytics aggregations.
+ * Verifies core business rules, laundry calculations, and analytics aggregations.
  */
 
 import assert from 'node:assert';
@@ -45,9 +43,7 @@ function it(description, testFn) {
   }
 }
 
-// ============================================================================
-// 1. AUTH SERVICE TESTS
-// ============================================================================
+// 1. Authentication Service Tests
 console.log('\n[1. Authentication Service]');
 
 it('validates email formats accurately', () => {
@@ -63,9 +59,7 @@ it('has demo user credentials defined', () => {
   assert.ok(DEMO_USER.name);
 });
 
-// ============================================================================
-// 2. LAUNDRY SERVICE & 7-DAY WEAR RULES
-// ============================================================================
+// 2. Laundry Service Tests
 console.log('\n[2. Laundry Service & Business Rules]');
 
 it('addDays accurately calculates future dates across months', () => {
@@ -152,9 +146,7 @@ it('formats remaining laundry time readable strings', () => {
   assert.strictEqual(str, 'In Laundry');
 });
 
-// ============================================================================
-// 3. ANALYTICS SERVICE TESTS (Requirements #36-#40)
-// ============================================================================
+// 3. Analytics Service Tests
 console.log('\n[3. Analytics Service & Usage Calculations]');
 
 const testClothing = [
@@ -173,13 +165,6 @@ const testOutfits = [
 // Wear history:
 // o1 worn 3 times (dates 2026-09-10, 2026-09-12, 2026-09-14)
 // o2 worn 1 time (date 2026-09-15)
-//
-// Usage counts per clothing:
-// c1 (White Tee): 3 wears
-// c3 (Blue Jeans): 3 wears
-// c5 (White Sneakers): 3 + 1 = 4 wears
-// c2 (Black Tee): 1 wear
-// c4 (Black Pants): 1 wear
 const testWearRecords = [
   { id: 'w1', outfitId: 'o1', wornDate: '2026-09-10' },
   { id: 'w2', outfitId: 'o1', wornDate: '2026-09-12' },
@@ -213,9 +198,6 @@ it('returns null for Top Outfit when no wear records exist', () => {
 });
 
 it('calculates Top Color across all worn outfit components', () => {
-  // o1 has White (c1), Blue (c3), White (c5) => each wear has 2 White, 1 Blue. 3 wears = 6 White, 3 Blue.
-  // o2 has Black (c2), Black (c4), White (c5) => 1 wear = 2 Black, 1 White.
-  // Total: White = 7, Blue = 3, Black = 2.
   const topColor = getTopColor(testClothing, testOutfits, testWearRecords);
   assert.ok(topColor);
   assert.strictEqual(topColor.color, 'White');
@@ -223,7 +205,6 @@ it('calculates Top Color across all worn outfit components', () => {
 });
 
 it('calculates Total Wardrobe Value summing each clothing price exactly once without double counting', () => {
-  // Prices: 800 + 1000 + 2000 + 1500 + 3000 = 8300
   const total = getTotalWardrobeValue(testClothing);
   assert.strictEqual(total, 8300);
 });
@@ -242,9 +223,7 @@ it('provides accurate laundry breakdown counts', () => {
   assert.strictEqual(breakdown.inLaundry, 1);
 });
 
-// ============================================================================
-// SUMMARY
-// ============================================================================
+// Test Summary
 console.log(`\nResults: ${passedTests} / ${totalTests} tests passed.`);
 if (passedTests === totalTests) {
   console.log('✓ All verification tests passed successfully!\n');
