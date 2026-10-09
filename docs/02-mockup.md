@@ -4,9 +4,9 @@
 
 During the design and prototyping phase, two iterations of wireframes were produced:
 
-1. **`Initial wireframes.pdf` (`D:\nica\Initial wireframes.pdf`):**  
+1. **`Initial wireframes.pdf`:**  
    The initial preliminary wireframe draft outlining early layout ideas, initial card structures, and feature placement.
-2. **`wireframes.pdf` (`D:\nica\wireframes.pdf`):**  
+2. **`wireframes.pdf`:**  
    The **final, refined wireframe specification** developed in Figma ([Figma Design Board](https://www.figma.com/design/NussYjveoq70JXoTlPA3Vc/Apsi-2?node-id=20-36)). This is the authoritative wireframe specification followed for the final application UI.
 
 > **Note on Iteration:**  
