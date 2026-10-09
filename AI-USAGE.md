@@ -6,7 +6,7 @@ This project was built with AI assistance. This file is the record of it. It is
 graded as the finals badge, and it is worth 100 points.
 
 > **Note on commit history:**  
-> On September 23 and 24, my time was spent writing, clarifying, and updating `README.md` and setting up the initial Week 1 project structure. Because of that, `AI-USAGE.md` was not committed separately on those first two days. I kept my prompt notes and consolidated all entries here when my Week 2 prototype features came together on September 27.
+> On September 23 and 24, my time was spent writing, clarifying, and updating `README.md` and setting up the initial Week 1 project structure. In Week 2, core prototype logic and canvas background processing were built. In the Finals week (October 8–9), the user interface was comprehensively overhauled to mirror the Figma wireframe specification (`wireframes.pdf`), connected to Supabase BaaS, and deployed to both Vercel and GitHub Pages.
 
 ---
 
@@ -62,12 +62,25 @@ At least six entries. One per real use. Every entry needs a commit link.
 - **What I kept, what I changed, and why:** The AI calculated wear counts based on saved outfits. I changed this completely: saving an outfit doesn't mean you wore it! I made analytics count only verified `WearRecord` logs that get created when someone clicks "[ Mark as Worn ]". I also made sure wardrobe value counts each clothing item only once, even if it is in multiple outfits. Finally, I built a 14-test suite in `test-services.js` that runs with `npm test`.
 - **Commit:** https://github.com/Jeniii26/Paradul-Tongol/commit/401aa7816789a1b6e4cf8f39eb218e412341b20c
 
+### 2026-10-08 - Wireframe redesign and editorial design system
+
+- **Tool:** Google Antigravity (Gemini 3.8 Flash & Claude 3.5 Sonnet)
+- **What I asked for:** Transforming the entire UI to faithfully implement the Figma wireframe specification (`wireframes.pdf`), including the deep plum header, logo, Cormorant Garamond serif headers, micro-category labels, and hero quote banner.
+- **What it gave back:** Updated JSX components (`Header.jsx`, `GalleryView.jsx`, `ClothingCard.jsx`, `OutfitCard.jsx`, `CalendarView.jsx`, `AnalyticsView.jsx`) with new wireframe styling classes and CSS tokens.
+- **What I kept, what I changed, and why:** The AI added an unwanted favorite heart button to clothing cards that wasn't in my wireframes. I had it removed, added an in-place "Edit Metadata" modal instead, replaced the clean status dot with `#1`, `#2`, `#3` ranking badges in the Analytics podium, and added rotating motivational quotes per login session.
+- **Commit:** https://github.com/Jeniii26/Paradul-Tongol/commit/aa22142f3ea7f4d54dfbd3d87bebc9750b2c1404
+
+### 2026-10-09 - Dual deployment & GitHub Actions subpath configuration
+
+- **Tool:** Google Antigravity (Gemini 3.8 Flash)
+- **What I asked for:** Creating an automated GitHub Actions CI/CD workflow to deploy the client to GitHub Pages while maintaining the live Vercel deployment.
+- **What it gave back:** A `.github/workflows/deploy.yml` workflow and Vite base path settings.
+- **What I kept, what I changed, and why:** The AI used hardcoded root asset paths (`/logo.png`, `/banner.png`) which failed on GitHub Pages because it runs in a subfolder (`/Paradul/`). I updated Vite's `base` setting to `'./'` and used `${import.meta.env.BASE_URL}` so images resolve seamlessly on both root domains (Vercel) and subfolders (GitHub Pages). I also added Supabase environment variable fallbacks in the workflow so GitHub Pages connects to our live PostgreSQL database.
+- **Commit:** https://github.com/Jeniii26/Paradul-Tongol/commit/15ffe515ae278f24458f2ee18fe4bb44111be140
+
 ---
 
 ## 2. Where the AI got it wrong
-
-Three cases. Be specific. If you write that the AI was never wrong, this section
-scores zero.
 
 ### Case 1 - Suggested a 40MB AI model for an offline prototype
 
@@ -83,12 +96,19 @@ scores zero.
 - **What I did instead:** I separated "Scheduled" from "Worn" and created an independent `WearRecord` list. The analytics functions now strictly count wears from verified wear logs created only when the user clicks "[ Mark as Worn ]" on the Calendar.
 - **Commit:** https://github.com/Jeniii26/Paradul-Tongol/commit/401aa7816789a1b6e4cf8f39eb218e412341b20c
 
-### Case 3 - Imported an icon that was never created, breaking the build
+### Case 3 - Subdirectory path handling on GitHub Pages caused 404s
 
-- **What it gave me:** In `OutfitCard.jsx`, the AI imported `{ IconEdit }` from `../common/Icons.jsx`.
-- **What was wrong with it:** It forgot to actually create `IconEdit` in `Icons.jsx`. The development server loaded fine, but when I ran `npm run build`, Vite/Rollup crashed with an error: `"IconEdit" is not exported by "src/components/common/Icons.jsx"`.
-- **What I did instead:** I opened `Icons.jsx`, wrote the missing SVG code for the edit pencil icon, exported it, and tested `npm run build` again until it built with 0 errors.
-- **Commit:** https://github.com/Jeniii26/Paradul-Tongol/commit/401aa7816789a1b6e4cf8f39eb218e412341b20c
+- **What it gave me:** When implementing the wireframe redesign, the AI hardcoded asset URLs as `<img src="/logo.png" />` and `<img src="/banner.png" />`.
+- **What was wrong with it:** On Vercel, the site is hosted at the root domain (`https://paradul.vercel.app/`), so `/logo.png` works. But on GitHub Pages, the site is served from a subfolder (`https://jeniii26.github.io/Paradul/`). A leading slash `/` told the browser to fetch from `https://jeniii26.github.io/logo.png`, producing a 404 error and missing pictures.
+- **What I did instead:** I had the code updated to dynamically use Vite's `import.meta.env.BASE_URL` (`src={`${import.meta.env.BASE_URL}logo.png`}`), which dynamically resolves to `./` or `/Paradul/` depending on the host environment.
+- **Commit:** https://github.com/Jeniii26/Paradul-Tongol/commit/15ffe515ae278f24458f2ee18fe4bb44111be140
+
+### Case 4 - Glued cards in analytics caused by missing bottom margin
+
+- **What it gave me:** After reordering the Analytics page to show Top 3 Most Used Clothing before Recent Wear Logs, the Top 3 card had an old `margin-top: 10px` and no `margin-bottom`.
+- **What was wrong with it:** The bottom border of the Top 3 Podium card sat directly on top of the Recent Wear Logs card with virtually 0px margin, breaking the design system's 28px/32px section rhythm.
+- **What I did instead:** Updated the CSS to remove `margin-top` and apply `margin-bottom: 32px` to `.wireframe-podium-section-card`, while distributing the wear logs table column widths cleanly (`150px` Date, flexible Outfit, `140px` Style pill).
+- **Commit:** https://github.com/Jeniii26/Paradul-Tongol/commit/73d215320743b8bead1e7b99c15908ce95ec9ff9
 
 ---
 

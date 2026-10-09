@@ -1,263 +1,180 @@
-# paradu'l
+# paradu'l — Digital Wardrobe & Mindful Styling
 
+[![Status: Finished](https://img.shields.io/badge/Status-Finished%20%2F%20Complete-success)](https://github.com/Jeniii26/Paradul-Tongol)
+[![Vercel Deployment](https://img.shields.io/badge/Deployment-Vercel-black?logo=vercel)](https://paradul.vercel.app/)
+[![GitHub Pages](https://img.shields.io/badge/Deployment-GitHub%20Pages-2ea44f?logo=github)](https://jeniii26.github.io/Paradul/)
 [![Made with AI](https://img.shields.io/badge/Made_with-AI_assistance-blue)](AI-USAGE.md)
 
 *Built with AI assistance using ChatGPT, Claude, and Google Antigravity (Gemini). See [AI-USAGE.md](AI-USAGE.md) for full prompt logs, failure analysis, and self-authored code breakdown.*
 
-### Quick Links
-* **Live Deployed Application:** [https://paradul.vercel.app/](https://paradul.vercel.app/)
-* **Demo Video:** [Watch the Video Recording](https://drive.google.com/drive/folders/1KLe95kHFs4N8nk9EJBeRkLDtNpXZLj50?usp=sharing)
-* **Demo & Presentation Guide:** [docs/05-demo-video.md](docs/05-demo-video.md)
+---
+
+### 🌐 Quick Links & Live Deployments
+* **Live App on Vercel:** [https://paradul.vercel.app/](https://paradul.vercel.app/)
+* **Live App on GitHub Pages:** [https://jeniii26.github.io/Paradul/](https://jeniii26.github.io/Paradul/)
+* **Demo Video Recording:** [Watch the Video Recording](https://drive.google.com/drive/folders/1KLe95kHFs4N8nk9EJBeRkLDtNpXZLj50?usp=sharing)
+* **Design System Specification:** [docs/03-design-system.md](docs/03-design-system.md)
+* **Wireframes & Mockups:** [docs/02-mockup.md](docs/02-mockup.md)
 
 ---
 
-## 1. Overview
+## 1. Application Screenshot
 
-**paradu'l** is a digital wardrobe and mindful style management web application I created to help users digitally organize their wardrobe, mix and match outfits, and use personalized data insights to make smarter fashion choices.
+![paradu'l Digital Wardrobe Gallery](assets/screenshot.png)
+
+---
+
+## 2. Overview & Problem Statement
+
+**paradu'l** is a digital wardrobe and mindful style management web application created to help users digitally organize their wardrobe, mix and match outfits, and use personalized data insights to make smarter fashion choices.
 
 It aims to address impulsive shopping and wardrobe underutilization by providing users with a visual inventory of clothing items they already own, allowing them to better understand and manage their personal style.
 
-### How to Access the Live Application
-You can access the live application directly in your web browser at **[https://paradul.vercel.app/](https://paradul.vercel.app/)**:
-1. Open the URL in your browser.
-2. Sign in with an existing account, or click **Create Account** to register a new personal account.
-3. Explore the 4 core views:
-   - **Gallery:** Browse clothing items, filter by category (Tops, Bottoms, Shoes), color, price (₱), or laundry status, and toggle items between clean and laundry.
-   - **Outfit Manager:** Build and view 3-piece coordinated outfits (1 Top, 1 Bottom, 1 Shoes), preview the visual stack, or use the clean-only outfit randomizer.
-   - **Calendar:** View planned outfits by date and click `[ Mark as Worn ]` to confirm an outfit was worn, which automatically schedules a 7-day laundry period for Tops and Bottoms while keeping Shoes clean.
-   - **Analytics:** View live calculations for the Top 3 Most Used clothing pieces, Top Outfit, Top Color, and Total Wardrobe Value in Philippine Pesos (`₱`).
+### Key Features at a Glance:
+1. **Digital Wardrobe Gallery:** Visual inventory with checkered transparency backdrops, dynamic session quote banner, multi-criteria filtering (Status, Color, Style, Max Price ₱, Search), and real photo upload with client-side HTML5 Canvas background removal and metadata editing.
+2. **Outfit Manager:** Strict 3-piece coordinated ensembles (1 Top, 1 Bottom, 1 Shoes) with real-time visual stack preview and an intelligent look randomizer that strictly excludes items currently in laundry.
+3. **Calendar & Automated 7-Day Laundry:** Interactive calendar planner with `[ Mark as Worn ]` confirmation that automatically schedules Tops and Bottoms for a 7-day laundry period while keeping Shoes clean.
+4. **Wardrobe Analytics & Style Insights:** Real-time data calculations for Top 3 Most Used Clothing pieces (with `#1`, `#2`, `#3` podium badges), Most Used Outfit, Most Used Color, Total Wardrobe Value in Philippine Pesos (`₱`) without double-counting, Laundry & Availability gauge, Category Distribution bars, and Recent Wear Logs.
 
 ---
 
-## 2. Setup and Installation
+## 3. Cloud Backend-as-a-Service (Supabase BaaS)
 
-> **Live Deployment:** The application is live and accessible at [https://paradul.vercel.app/](https://paradul.vercel.app/).
-> For local development, follow the instructions below.
+Rather than maintaining a standalone local server, **paradu'l utilizes Supabase as its production Backend-as-a-Service (BaaS)**:
+
+* **PostgreSQL Database:** Hosts relational tables for `clothing_items`, `outfits`, `schedules`, and `wear_records` (schema documented in [`server/db/supabase-schema.sql`](server/db/supabase-schema.sql)).
+* **Row-Level Security (RLS):** Strict security policies ensure users can only view, create, edit, and delete their own wardrobe items (`auth.uid() = user_id`).
+* **Supabase Authentication:** Secure JWT-based user session persistence, password hashing, and authentication state listeners.
+* **Resilient Dual Data Layer:** Built with a unified API gateway ([`client/src/api/index.js`](client/src/api/index.js)). When online with Supabase keys configured, it communicates directly with the Supabase PostgreSQL database; when offline, it gracefully falls back to browser `localStorage` (`mockApi.js`) so the application never breaks.
+
+---
+
+## 4. Setup and Local Installation
 
 ### Prerequisites
-
-* [Node.js](https://nodejs.org/) (v20+ recommended) installed on your machine.
-* Git installed on your machine.
-* A modern web browser (Chrome, Edge, Firefox, Safari).
+* [Node.js](https://nodejs.org/) (v20+ recommended)
+* Git
 
 ### Clone the Repository
-
 ```bash
 git clone https://github.com/Jeniii26/Paradul-Tongol.git
 cd Paradul-Tongol
 ```
 
 ### Install Dependencies
-
-Run the following command inside the `client` folder:
-
 ```bash
 cd client
 npm install
 ```
 
-### Environment Variables
+### Environment Configuration
+Copy the template environment file:
+```bash
+cp .env.example .env
+```
+To connect to your live Supabase database, provide your Supabase URL and anonymous key:
+```env
+VITE_USE_MOCK_API=false
+VITE_SUPABASE_URL=https://your-project.supabase.co
+VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
+```
+*(If unset or left in demo mode, the app automatically runs against the local mock API with pre-loaded sample wardrobe items).*
 
-No external API keys or database environment variables are required for Week 2.
-
-The application operates with `VITE_USE_MOCK_API=true` by default, running against the local browser data store and simulated network latency.
-
----
-
-## 3. How to Run
-
-### Start the Development Server
-
-From the `client` directory, run:
-
+### Start Local Development Server
 ```bash
 npm run dev
 ```
+Open [http://localhost:5173](http://localhost:5173) in your browser.
 
-Open the local URL displayed in your terminal:
-
-```text
-http://localhost:5173
-```
-
-### Run Automated Tests
-
-To run the verification test suite covering laundry business rules, wear calculations, and analytics:
-
+### Run Automated Verification Test Suite
 ```bash
 npm test
 ```
+Runs 14 automated tests verifying laundry business logic, date calculations, and analytics algorithms.
 
 ### Build for Production
-
 ```bash
 npm run build
 ```
 
 ---
 
-## 4. Features and Usage (Week 2)
-
-### 1. Authentication & User Accounts
-* **Fashion-Forward Login & Sign-Up:** Includes paradu'l branding, email, password, "Remember me", and clean Sign In / Create Account tabs.
-* **Flexible Access:** Sign in with existing credentials or register a new personal account.
-* **Session Persistence:** Login state persists in browser storage with an accessible logout action in the top navigation bar.
-
-### 2. Digital Wardrobe Gallery
-* **Transparent PNG Neutral Backdrop:** Clothing cards feature a subtle checkered backdrop specifically designed to display transparent, background-isolated clothing assets crisply.
-* **Detailed Metadata Display:** Item name, category badge (`Top`, `Bottom`, `Shoes`), color indicator chip, price formatted in Philippine Pesos (`₱`), style tag, and laundry status.
-* **Combinable Multi-Filters:**
-  * **Primary Category Filter:** Quick pills to filter by All Pieces, Tops, Bottoms, or Shoes.
-  * **Secondary Filters:** Filter by Color, Style, Max Price (up to ₱1,000, ₱2,000, ₱3,000), or live text search across names, colors, and styles.
-  * **Laundry Status:** Filter by Available or In Laundry.
-  * **Reset Action:** Instant "Reset" button clears all active filters.
-* **Quick Laundry Toggle:** Quickly mark any item clean/available or send it to laundry directly from the card.
-
-### 3. Real Photo Upload & Image Processing
-* **Device Upload:** Select image files from your computer or drag and drop into the upload zone.
-* **Processing UX Pipeline:**
-  1. `Preparing your clothing photo...`
-  2. `Removing background & isolating clothing...`
-  3. `Detecting clothing type and color palette...`
-  4. `Ready!` (with visual progress bar)
-* **Background Removal:** Client-side HTML5 Canvas perimeter-sampling algorithm isolates clothing from solid or studio backdrops and outputs a real transparent PNG.
-* **Preview Mode Switch:** Users can toggle between **"Background Removed (Transparent)"** and **"Original Photo"**.
-* **Assisted Clothing Detection:** Analyzes silhouette aspect ratios and dominant RGB colors to pre-select category and color.
-* **Manual Metadata Confirmation:** Users can verify or edit the item name, category, color, price (₱), style, and initial laundry status before saving.
-* **Graceful Fallback:** If automatic isolation encounters issues, users can click "Use Original Image", retry, or cancel.
-
-### 4. Outfit Manager & Coordinated Outfits
-* **Strict 3-Piece Structure:** Every outfit requires exactly **1 Top**, **1 Bottom**, and **1 pair of Shoes** before it can be saved.
-* **Live Synchronized Preview:** 3-tier visual stack updates in real time as pieces are selected.
-* **Random Outfit Generator:**
-  * Clicking **"Randomize Look"** pairs 1 clean top, 1 clean bottom, and 1 clean pair of shoes.
-  * **Strictly excludes** any clothing items currently marked as `in_laundry`.
-  * Allows re-randomizing or swapping individual pieces.
-* **Outfit Actions:** Directly schedule an outfit to the calendar, edit its components, or delete the outfit (deleting an outfit preserves its clothing items).
-
-### 5. Calendar & Outfit Planner
-* **Scheduled vs. Worn Distinction:**
-  * **Scheduled:** Represents the user's plan to wear an outfit on a given date.
-  * **Worn:** Confirmed actual wear. Outfits on the calendar are not considered worn until confirmed.
-* **`[ Mark as Worn ]` Action:**
-  * Confirms the outfit was worn and creates a `WearRecord` for Analytics.
-  * **Automatic 7-Day Laundry:** Automatically places the outfit's **Top** and **Bottom** into laundry for 7 days (`laundryUntil = wearDate + 7 days`).
-  * **Shoes:** Kept clean and unaffected (shoes are managed manually).
-* **Schedule Management:** Add, edit, or delete calendar events with date, occasion, and notes.
-
-### 6. Laundry Lifecycle & Expiration
-* **Automatic Expiration:** Whenever wardrobe data is loaded, `processLaundryExpiration` checks if `currentDate >= laundryUntil`. If expired, status automatically reverts to `available` without requiring a continuously running server process.
-* **Manual Override:** Users can toggle laundry status at any time, which takes immediate precedence over automatic schedules.
-
-### 7. Wardrobe Analytics & Style Insights
-* **Top 3 Most Used Clothing:** Counted strictly from verified `WearRecord` logs (saved or scheduled outfits do not count). Features #1 Gold, #2 Silver, and #3 Bronze podium cards.
-* **Most Used Outfit:** Displays the outfit combination with the highest wear count.
-* **Most Used Color:** Analyzes colors across all pieces worn in confirmed outfits.
-* **Total Wardrobe Value:** Sums the price of every active clothing item exactly once in Philippine Pesos (`₱`).
-* **Closet Distribution:** Category breakdown bars and laundry availability ratio.
-* **Recent Wear Logs:** Chronological log table of verified wear events.
-
-### 8. Local Data Persistence
-* Data is stored in browser `localStorage` and persists across page reloads:
-  * `paradul:clothing`
-  * `paradul:outfits`
-  * `paradul:schedules`
-  * `paradul:wear_records`
-  * `paradul:auth_user`
-
----
-
-## 5. Project Structure
+## 5. Project Directory Structure
 
 ```text
 Paradul-Tongol/
+├── .github/
+│   └── workflows/
+│       └── deploy.yml              # Automated GitHub Actions workflow for GitHub Pages
+├── assets/
+│   └── screenshot.png             # Application preview screenshot
 ├── client/
+│   ├── public/
+│   │   ├── banner.png             # Hero quote laundry basket artwork
+│   │   └── logo.png               # paradu'l brand logo
 │   ├── src/
 │   │   ├── api/
-│   │   │   ├── index.js              # Unified API gateway (mockApi vs httpApi vs supabaseApi)
-│   │   │   ├── mockApi.js            # LocalStorage persistence with simulated delay
-│   │   │   ├── httpApi.js            # HTTP client for future Express/PostgreSQL backend
-│   │   │   ├── supabaseApi.js        # Supabase PostgreSQL client integration
-│   │   │   ├── supabaseClient.js     # Supabase client initializer
-│   │   │   └── sampleData.js         # Pre-loaded wardrobe items, outfits, and wear history
-│   │   ├── services/
-│   │   │   ├── authService.js        # Authentication and session management
-│   │   │   ├── laundryService.js     # 7-day wear laundry rules and expiration logic
-│   │   │   ├── analyticsService.js   # Pure calculations for top items, outfits, and value
-│   │   │   └── imageProcessingService.js # Canvas background removal & detection
+│   │   │   ├── index.js           # Unified API gateway (Supabase vs Mock API)
+│   │   │   ├── supabaseApi.js     # Supabase PostgreSQL client integration
+│   │   │   ├── supabaseClient.js  # Supabase client initialization
+│   │   │   ├── mockApi.js         # Browser localStorage fallback persistence
+│   │   │   ├── sampleData.js      # Seed wardrobe items and SVG illustrations
+│   │   │   └── httpApi.js         # REST HTTP client interface
 │   │   ├── components/
-│   │   │   ├── common/               # Modal, Badge, and SVG Icons
-│   │   │   ├── Gallery/              # GalleryView, ClothingCard, UploadModal
-│   │   │   ├── OutfitManager/        # OutfitManagerView, OutfitCard, OutfitCreatorModal
-│   │   │   ├── Calendar/             # CalendarView, ScheduleModal
-│   │   │   ├── Analytics/            # AnalyticsView
-│   │   │   ├── Header.jsx            # Top navigation bar and user menu
-│   │   │   └── Login.jsx             # Login and sign-up view
-│   │   ├── App.jsx                   # Central state orchestration and tab routing
-│   │   ├── main.jsx                  # React application entry point
-│   │   └── styles.css                # Design system tokens, warm porcelain theme, and styling
-│   ├── test-services.js              # Automated test suite for business rules & analytics
-│   ├── index.html                    # Application HTML shell
-│   ├── package.json                  # Dependencies and scripts (dev, build, test)
-│   └── vite.config.js                # Vite configuration
-│
-├── server/                           # Express & PostgreSQL scaffolding for Week 3
-│   ├── db/
-│   │   ├── pool.js
-│   │   ├── run.js
-│   │   ├── schema.sql
-│   │   └── seed.sql
-│   ├── server.js
-│   └── package.json
-│
-├── docs/                             # Project planning documents and design systems
-├── compose.yml                       # Container setup
-└── README.md                         # Project documentation
+│   │   │   ├── common/            # Icons (fashion SVGs) and generic Modal
+│   │   │   ├── Gallery/           # GalleryView, ClothingCard, UploadModal, EditClothingModal
+│   │   │   ├── OutfitManager/     # OutfitManagerView, OutfitCard, OutfitCreatorModal
+│   │   │   ├── Calendar/          # CalendarView, ScheduleModal
+│   │   │   ├── Analytics/         # AnalyticsView
+│   │   │   ├── Header.jsx         # Plum top banner, logo, flourish dividers, nav tabs
+│   │   │   └── Login.jsx          # User login and sign-up interface
+│   │   ├── services/
+│   │   │   ├── authService.js     # Supabase auth & mock session management
+│   │   │   ├── laundryService.js  # 7-day laundry transition & expiration engine
+│   │   │   ├── analyticsService.js# Wardrobe value, top clothing & outfit metrics
+│   │   │   └── imageProcessingService.js # HTML5 Canvas background removal & detection
+│   │   ├── App.jsx                # Main application state orchestration
+│   │   ├── main.jsx               # React entry point
+│   │   └── styles.css             # Design system tokens, warm porcelain theme, & responsive styles
+│   ├── test-services.js           # Automated verification test suite (14 tests)
+│   ├── index.html                 # Application HTML shell
+│   ├── package.json               # Client scripts and dependencies
+│   ├── vercel.json                # Vercel SPA client rewrite configuration
+│   └── vite.config.js             # Vite configuration with relative base path support
+├── server/
+│   └── db/
+│       └── supabase-schema.sql    # PostgreSQL schema for Supabase tables & RLS policies
+├── docs/
+│   ├── 01-proposal.md             # Project proposal and requirements
+│   ├── 02-mockup.md               # Wireframe evolution, PDF links, and screen mockups
+│   ├── 03-design-system.md        # Color system, typography, and UI specifications
+│   ├── 04-weekly-reports.md       # Development progress logs across all weeks
+│   ├── 05-demo-video.md           # Video recording presentation guide
+│   └── 06-security-and-privacy.md # Security checklist and data privacy reflection
+├── AI-USAGE.md                    # Complete AI prompt disclosure and self-authored code breakdown
+└── README.md                      # Main project documentation
 ```
 
 ---
 
-## 6. Screenshots
+## 6. Project Completion Status
 
-*(Screenshots will be added as UI development progresses.)*
-
----
-
-## 7. Progress & Next Steps
-
-### Completed in Week 2
-* [x] Polished, cohesive fashion UI design system with light/dark theme support.
-* [x] Mock authentication with persistent user session.
-* [x] Digital Wardrobe Gallery with multi-criteria combinable filtering and search.
-* [x] Real device photo upload with client-side canvas background removal and assisted detection.
-* [x] 3-piece Outfit Manager (Top, Bottom, Shoes) with live visual stack preview.
-* [x] Intelligent Random Outfit Generator strictly excluding items in laundry.
-* [x] Calendar & Outfit Planner with explicit "Scheduled" vs. "Worn" distinction.
-* [x] Automatic 7-day laundry transition for Tops and Bottoms upon wear.
-* [x] Automatic laundry expiration check on load and manual override capabilities.
-* [x] Wardrobe Analytics (Top 3 items, top outfit, top color, total wardrobe value).
-* [x] Browser `localStorage` data persistence across sessions.
-* [x] Automated test suite verifying business logic and calculations (14/14 tests passing).
-
-### Next Steps (Week 3)
-1. Updating `server/db/schema.sql` to represent clothing items, outfits, schedules, and wear logs in PostgreSQL.
-2. Implementing Express API routes in `server/server.js` corresponding to `httpApi.js`.
-3. Connecting the React frontend to the live Express API (`VITE_USE_MOCK_API=false`).
-4. Preparing deployment configurations for client, server, and database.
-5. Future migration to Supabase Auth and Supabase Storage.
+### ✅ All Project Deliverables Completed:
+* [x] **Figma Wireframe UI Redesign:** Full visual alignment with the Figma design specification (`wireframes.pdf`), including the warm porcelain canvas, deep ink/plum typography, Cormorant Garamond serif headings, ornamental flourish dividers, and editorial hero quote banner.
+* [x] **Supabase BaaS Integration:** Relational database storage in PostgreSQL with user authentication and Row-Level Security.
+* [x] **Digital Wardrobe Gallery:** Multi-parameter combinable filtering, search, and dynamic session quote cycling.
+* [x] **Canvas Background Removal:** Client-side transparent PNG generation and photo downscaling.
+* [x] **Clothing Metadata Editing:** In-place metadata editing modal for existing pieces.
+* [x] **3-Piece Outfit Manager:** Coordinated look builder and laundry-safe look randomizer.
+* [x] **Calendar & 7-Day Laundry Automation:** Automated laundry scheduling for Tops and Bottoms upon wear with automatic expiration.
+* [x] **Wardrobe Analytics:** Top 3 podium with rank badges, wardrobe valuation in ₱, laundry availability bar, category distribution progress bars, and recent wear logs table.
+* [x] **Dual Deployment:** Live and operational on both **Vercel** ([https://paradul.vercel.app/](https://paradul.vercel.app/)) and **GitHub Pages** ([https://jeniii26.github.io/Paradul/](https://jeniii26.github.io/Paradul/)).
+* [x] **Automated Testing:** 14/14 tests passing (`npm test`).
 
 ---
 
-## 8. AI Usage
+## 7. AI Usage Disclosure
 
 [![Made with AI](https://img.shields.io/badge/Made_with-AI_assistance-blue)](AI-USAGE.md)
 
-This project was built with AI assistance (ChatGPT, Claude, and Google Antigravity / Gemini) adhering to the 80/20 guideline. See [AI-USAGE.md](AI-USAGE.md) for the complete disclosure of prompts, error analysis, and self-authored code breakdown.
-
-AI tools were used during development as a supporting resource for:
-* Assisting with boilerplate scaffolding and component layout design.
-* Implementing client-side canvas algorithms for background removal and dominant color extraction.
-* Structuring test suites for business logic verification.
-* Reviewing code quality, accessibility, and documentation.
-
-I reviewed, tested, and understood all AI-generated code and architecture. I remain fully responsible for the implementation and functionality of the application.
+This project was built with AI assistance (ChatGPT, Claude, and Google Antigravity / Gemini) adhering to academic guidelines. See [AI-USAGE.md](AI-USAGE.md) for the full log of prompts, problem resolutions, and the breakdown of self-authored code.
